@@ -61,6 +61,7 @@ private :
         {return base::capacity();}
     bool empty() const
     	{return this->begin == this->end;}
+	void reserve(size_type __n);
 	size_type max_size() const;
 	void resize(size_type sz);
     void resize(size_type sz, const_reference x);
@@ -156,7 +157,14 @@ void Vector<T, Allocator>::append(size_type n)
 		this->construct_at_end(n);
 	else
 	{
-
+		allocator_type& a = this->alloc();
+		const value_type& v = typename T;
+		Vector<T, Allocator> temp_vector(recommend(size() + n), v, a);
+		temp_vector->end = std::copy(this->begin, this->end, temp_vector->begin);
+		temp_vector.construct_at_end(n);
+		std::swap(this->begin, temp_vector->begin);
+		std::swap(this->end, temp_vector->end);
+		std::swap(this->end_cap(), this->end_cap());
 	}
 }
 template <class T, class Allocator>
@@ -166,7 +174,14 @@ void Vector<T, Allocator>::append(size_type n, const_reference x)
 		this->construct_at_end(n, x);
 	else
 	{
-		
+		allocator_type& a = this->alloc();
+		const value_type& v = typename T;
+		Vector<T, Allocator> temp_vector(recommend(size() + n), v, a);
+		temp_vector->end = std::copy(this->begin, this->end, temp_vector->begin);
+		temp_vector.construct_at_end(n);
+		std::swap(this->begin, temp_vector->begin);
+		std::swap(this->end, temp_vector->end);
+		std::swap(this->end_cap(), this->end_cap());
 	}
 }
 
@@ -276,20 +291,36 @@ template <class T, class Allocator>
 void Vector<T, Allocator>::resize(size_type sz)
 {
 	size_type cs = size();
-/*	if (cs < sz)
+	if (cs < sz)
 		this->append(sz - cs);
-	else*/
+	else
 		this->destruct_at_end(this->begin + sz);
 }
 template <class T, class Allocator>
 void Vector<T, Allocator>::resize(size_type sz, const_reference x)
 {
 	size_type cs = size();
-/*	if (cs < sz)
+	if (cs < sz)
 		this->append(sz - cs, x);
-	else*/
+	else
 		this->destruct_at_end(this->begin + sz);
 }
+template <class T, class Allocator>
+void  Vector<T, Allocator>::reserve(size_type n)
+{
+	const size_type ms = max_size();
+	if (n > ms)
+		this->throwLengthError();
+	if (n > capacity())
+	{
+		allocator_type& a = this->alloc();
+		const value_type& v = typename T;
+		Vector<T, Allocator> temp_vector(n, v, a);
+		temp_vector->end = std::copy(this->begin, this->end, temp_vector->begin);
+		std::swap(this->begin, temp_vector->begin);
+		std::swap(this->end, temp_vector->end);
+		std::swap(this->end_cap(), this->end_cap());
+	}
+}
 };
-
 #endif
