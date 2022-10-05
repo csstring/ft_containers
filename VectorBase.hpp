@@ -27,9 +27,9 @@ protected:
     pointer                                         end;
 	ft::pair<pointer, allocator_type> end_cap_val;
 	allocator_type& alloc() {return end_cap_val.second();}
-    const allocator_type& alloc() {return end_cap_val.second();}
+    const allocator_type& alloc() const {return end_cap_val.second();}
     pointer& end_cap() {return end_cap_val.first();}
-    const pointer& end_cap() {return end_cap_val.first();}
+    const pointer& end_cap() const {return end_cap_val.first();}
 
 	VectorBase();
 	VectorBase(const allocator_type& a);
@@ -64,7 +64,7 @@ template <class T, class Allocator>
 VectorBase<T, Allocator>::VectorBase() 
 	:	begin(nullptr), 
 		end(nullptr), 
-		end_cap_val(nullptr, std::__default_init_tag){}
+		end_cap_val(nullptr, std::__default_init_tag()){}
 
 template <class T, class Allocator>
 VectorBase<T, Allocator>::VectorBase(const allocator_type& a)

@@ -8,7 +8,7 @@ class VectorBaseCommon
 {
 protected:
 	VectorBaseCommon(){}
-	void	throwLengthError() const
+	void	throwLengthError() const;
 	void	throwOutOfRange() const;
 };
 }
