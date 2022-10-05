@@ -23,20 +23,20 @@ protected:
     typedef pointer                                  iterator;
     typedef const_pointer                            const_iterator;
 
-    pointer                                         begin;
-    pointer                                         end;
+    pointer                                         begin_;
+    pointer                                         end_;
 	ft::pair<pointer, allocator_type> end_cap_val;
-	allocator_type& alloc() {return end_cap_val.second();}
-    const allocator_type& alloc() const {return end_cap_val.second();}
-    pointer& end_cap() {return end_cap_val.first();}
-    const pointer& end_cap() const {return end_cap_val.first();}
+	allocator_type& alloc() {return end_cap_val.second;}
+    const allocator_type& alloc() const {return end_cap_val.second;}
+    pointer& end_cap() {return end_cap_val.first;}
+    const pointer& end_cap() const {return end_cap_val.first;}
 
 	VectorBase();
 	VectorBase(const allocator_type& a);
 	~VectorBase();
-	void clear() { destruct_at_end(begin); }
+	void clear() { destruct_at_end(begin_); }
 	size_type capacity()
-		{ return static_cast<size_type>(end_cap() - begin); }
+		{ return static_cast<size_type>(end_cap() - begin_); }
 	void destruct_at_end(pointer new_last);
 private:
 	void copy_assign_alloc(const VectorBase& c)
@@ -44,8 +44,8 @@ private:
 		if (alloc() != c.alloc())
 		{
 			clear();
-			allocator_type::deallocate(begin, capacity());
-			begin = end = end_cap() = nullptr;
+			allocator_type::deallocate(begin_, capacity());
+			begin_ = end_ = end_cap() = nullptr;
 		}
 		alloc() = c.alloc();
 	}
@@ -54,31 +54,32 @@ private:
 template <class T, class Allocator>
 void	VectorBase<T, Allocator>::destruct_at_end(pointer new_last)
 {
-	pointer soon_to_be_end = end;
+	pointer soon_to_be_end = end_;
 	while (new_last != soon_to_be_end)
-		allocator_type::destroy(--soon_to_be_end);
-	end = new_last;
+		alloc().destroy(--soon_to_be_end);
+	end_ = new_last;
 }
 
 template <class T, class Allocator>
 VectorBase<T, Allocator>::VectorBase() 
-	:	begin(nullptr), 
-		end(nullptr), 
+	:	begin_(nullptr), 
+		end_(nullptr), 
 		end_cap_val(nullptr, std::__default_init_tag()){}
 
 template <class T, class Allocator>
 VectorBase<T, Allocator>::VectorBase(const allocator_type& a)
-	:	begin(nullptr), 
-		end(nullptr), 
+	:	begin_(nullptr), 
+		end_(nullptr), 
 		end_cap_val(nullptr, a){}
 
 template <class T, class Allocator>
 VectorBase<T, Allocator>::~VectorBase()
 {
-	if (begin != nullptr)
+	if (begin_ != nullptr)
 	{
+		//Allocator a = alloc();
 		clear();
-		allocator_type::deallocate(begin, capacity());
+		alloc().deallocate(begin_, capacity());
 	}
 }
 

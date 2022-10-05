@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <limits>
  //나중에 삭제
+ #include <iostream>
 #include <iterator> //나중에 직접만든걸로 수저
 namespace ft
 {
@@ -25,34 +26,26 @@ public:
     typedef typename base::difference_type         difference_type;
     typedef typename base::pointer                 pointer;
     typedef typename base::const_pointer           const_pointer;
+	typedef pointer                                  iterator;
+    typedef const_pointer                            const_iterator;
 	//아래 4개는 다시 만들어야함
-    typedef std::__wrap_iter<pointer>                     iterator;
-    typedef std::__wrap_iter<const_pointer>               const_iterator;
+//    typedef std::__wrap_iter<pointer>                     iterator;
+//    typedef std::__wrap_iter<const_pointer>               const_iterator;
 	typedef std::reverse_iterator<iterator> reverse_iterator;
     typedef std::reverse_iterator<const_iterator>   const_reverse_iterator;
 
 	//생성자
-	explicit Vector(const allocator_type& a);
-	explicit Vector(size_type n, const value_type& x, const allocator_type& a);
+	explicit Vector(const allocator_type& a = Allocator());
+	explicit Vector(size_type n, const value_type& x, const allocator_type& a = Allocator());
 	template <class InputIterator>
-	Vector(InputIterator first, InputIterator last, const allocator_type& a);
+	Vector(InputIterator first, InputIterator last, const allocator_type& a = Allocator());
 	Vector(const Vector& copy);
 	~Vector(){}
 	Vector& operator=(const Vector& ref);
-private :
-	//utils
-	void vallocate(size_type n);
-	void vdeallocate();
-	void construct_at_end(size_type n);
-	void construct_at_end(size_type n, const_reference val);
-	template <class InputIterator>
-	void construct_at_end(InputIterator first, InputIterator second, size_type n);
-	size_type recommend(size_type new_size) const;
-	void append(size_type n);
-    void append(size_type n, const_reference x);
 	//Member functions
 	//iterator
-	const_iterator make_iter(const_pointer __p); //이놈 왜 있는건지  모르겟음
+	const_iterator make_iter(const_pointer p) const; //이놈 왜 있는건지  모르겟음
+	iterator make_iter(pointer p);
 	iterator               begin();
     const_iterator         begin()	const;
     iterator               end();
@@ -71,11 +64,11 @@ private :
 		{return const_reverse_iterator(begin());}
 	//Capacity
 	size_type size() const
-	 {return static_cast<size_type>(this->end - this->begin);}
+	 {return static_cast<size_type>(this->end_ - this->begin_);}
     size_type capacity() const 
         {return base::capacity();}
     bool empty() const
-    	{return this->begin == this->end;}
+    	{return this->begin_ == this->end_;}
 	void reserve(size_type __n);
 	size_type max_size() const;
 	void resize(size_type sz);
@@ -87,10 +80,10 @@ private :
     const_reference at(size_type n) const;
 
 	//_LIBCPP_ASSERT(!empty(), "front() called for empty vector"); assert까지 구현할 필요 있나?
-    reference       front() { return *this->begin; }
-    const_reference front() const { return *this->begin; }
-    reference       back() { return *(this->end - 1); }
-    const_reference back()  const { return *(this->end - 1); }
+    reference       front() { return *this->begin_; }
+    const_reference front() const { return *this->begin_; }
+    reference       back() { return *(this->end_ - 1); }
+    const_reference back()  const { return *(this->end_ - 1); }
 	//Modifiers:
 	void assign(size_type n, const_reference u);
 	template <class InputIterator>
@@ -111,12 +104,23 @@ private :
 	void swap(Vector&);
 	//Allocator:
 	//Non-member function overloads
+private :
+	//utils
+	void vallocate(size_type n);
+	void vdeallocate();
+	void construct_at_end(size_type n);
+	void construct_at_end(size_type n, const_reference val);
+	template <class InputIterator>
+	void construct_at_end(InputIterator first, InputIterator second, size_type n);
+	size_type recommend(size_type new_size) const;
+	void append(size_type n);
+    void append(size_type n, const_reference x);
 	struct ConstructTransaction 
 	{
     explicit ConstructTransaction(Vector &ref, size_type n)
-      : CTV(ref),  pos(ref.end), new_end(ref.end + n) {}
+      : CTV(ref),  pos(ref.end_), new_end(ref.end_ + n) {}
     ~ConstructTransaction() {
-      CTV.end = pos;
+      CTV.end_ = pos;
     }
     Vector &CTV;
     pointer pos;
@@ -129,7 +133,7 @@ template <class T, class Allocator>
 typename Vector<T, Allocator>::size_type 
 Vector<T, Allocator>::max_size() const
 {
-	return (std::min<size_type>(allocator_type::max_size(), 
+	return (std::min<size_type>(this->alloc().max_size(), 
 								std::numeric_limits<difference_type>::max()));
 }
 template <class T, class Allocator>
@@ -137,17 +141,17 @@ void Vector<T, Allocator>::vallocate(size_type n)
 {
 	if (n > max_size())
 		this->throwLengthError();
-	this->begin = this->end = allocator_type::allocate(this->alloc(), n);
-	this->end_cap() = this->begin + n;
+	this->begin_ = this->end_ = this->alloc().allocate(n);
+	this->end_cap() = this->begin_ + n;
 }
 template <class T, class Allocator>
 void Vector<T, Allocator>::vdeallocate()
 {
-	if (this->begin != nullptr)
+	if (this->begin_ != nullptr)
 	{
 		this->clear();
-		allocator_type::deallocate(this->begin, capacity());
-		this->begin = this->end = this->end_cap() = nullptr;
+		this->alloc().deallocate(this->begin_, capacity());
+		this->begin_ = this->end_ = this->end_cap() = nullptr;
 	}
 }
 template <class T, class Allocator>
@@ -156,7 +160,7 @@ void Vector<T, Allocator>::construct_at_end(size_type n)
 	ConstructTransaction tx(*this, n);
 	for (; tx.pos != tx.new_end; ++tx.pos)
 	{
-		Allocator::construct(tx.pos);
+		this->alloc().construct(tx.pos);
 	}
 }
 template <class T, class Allocator>
@@ -165,7 +169,7 @@ void Vector<T, Allocator>::construct_at_end(size_type n, const_reference val)
 	ConstructTransaction tx(*this, n);
 	for (; tx.pos != tx.new_end; ++tx.pos)
 	{
-		Allocator::construct(tx.pos, val);
+		this->alloc().construct(tx.pos, val);
 	}
 }
 template <class T, class Allocator>
@@ -175,7 +179,7 @@ void Vector<T, Allocator>::construct_at_end(InputIterator first, InputIterator s
 	ConstructTransaction tx(*this, n);
 	for (;first != second; ++first ,++tx.pos)
 	{
-		Allocator::construct(tx.pos, *first);
+		this->alloc().construct(tx.pos);
 	}
 }
 template <class T, class Allocator>
@@ -193,43 +197,45 @@ Vector<T, Allocator>::recommend(size_type new_size) const
 template <class T, class Allocator>
 void Vector<T, Allocator>::append(size_type n)
 {
-	if (static_cast<size_type>(this->end_cap() - this->end) >= n)
+	if (static_cast<size_type>(this->end_cap() - this->end_) >= n)
 		this->construct_at_end(n);
 	else
 	{
 		allocator_type& a = this->alloc();
 		Vector<T, Allocator> temp_vector(recommend(size() + n), (void)0, a);
-		temp_vector->end = std::copy(this->begin, this->end, temp_vector->begin);
+		temp_vector->end_ = std::copy(this->begin_, this->end_, temp_vector->begin_);
 		temp_vector.construct_at_end(n);
-		std::swap(this->begin, temp_vector->begin);
-		std::swap(this->end, temp_vector->end);
+		std::swap(this->begin_, temp_vector->begin_);
+		std::swap(this->end_, temp_vector->end_);
 		std::swap(this->end_cap(), this->end_cap());
 	}
 }
 template <class T, class Allocator>
 void Vector<T, Allocator>::append(size_type n, const_reference x)
 {
-	if (static_cast<size_type>(this->end_cap() - this->end) >= n)
+	if (static_cast<size_type>(this->end_cap() - this->end_) >= n)
 		this->construct_at_end(n, x);
 	else
 	{
 		allocator_type& a = this->alloc();
 		Vector<T, Allocator> temp_vector(recommend(size() + n), x, a);
-		temp_vector->end = std::copy(this->begin, this->end, temp_vector->begin);
+		temp_vector->end_ = std::copy(this->begin_, this->end_, temp_vector->begin_);
 		temp_vector.construct_at_end(n, x);
-		std::swap(this->begin, temp_vector->begin);
-		std::swap(this->end, temp_vector->end);
+		std::swap(this->begin_, temp_vector->begin_);
+		std::swap(this->end_, temp_vector->end_);
 		std::swap(this->end_cap(), this->end_cap());
 	}
 }
 
 //Member functions
 template <class T, class Allocator>
-Vector<T, Allocator>::Vector(const allocator_type& a)
-: VectorBase<T, Allocator>(a) {}
+Vector<T, Allocator>::Vector(const allocator_type& a) : base(a) {
+	std::cout<< "empty constructure call" <<std::endl;
+}
+
 template <class T, class Allocator>
 Vector<T, Allocator>::Vector(size_type n, const value_type& x, const allocator_type& a) : base(a)
-{
+{std::cout<< "n * val constructure call" <<std::endl;
 	if (n > 0)
 	{
 		vallocate(n);
@@ -239,6 +245,7 @@ Vector<T, Allocator>::Vector(size_type n, const value_type& x, const allocator_t
 template <class T, class Allocator>
 Vector<T, Allocator>::Vector(const Vector& copy) : base(copy.alloc())
 {//값 복사 해야하는거 아닌가? 그냥 대입연산자 호출할까..
+std::cout<< "copy constructure call" <<std::endl;
 	size_type n = copy.size();
 	if (n > 0)
 	{
@@ -249,8 +256,8 @@ Vector<T, Allocator>::Vector(const Vector& copy) : base(copy.alloc())
 template <class T, class Allocator>
 template <class InputIterator>
 Vector<T, Allocator>::Vector(InputIterator first, InputIterator last, const allocator_type& a) : base(a)
-{
-	size_type n = static_cast<size_type>(std::distance(first, last));
+{std::cout<< "range constructure call" <<std::endl;
+	size_type n = static_cast<size_type>(last - first);
 	if (n > 0)
 	{
 		vallocate(n);
@@ -275,40 +282,48 @@ Vector<T, Allocator>& Vector<T, Allocator>::operator=(const Vector& ref)
 	if (this != &ref)
 	{
 		base::copy_assign_alloc(ref);
-		assign(ref.begin, ref.end);
+		assign(ref.begin_, ref.end_);
 	}
 	return (*this);
 }
 //iterator
 template <class T, class Allocator>
 typename Vector<T, Allocator>::const_iterator
-Vector<T, Allocator>::make_iter(const_pointer p)
+Vector<T, Allocator>::make_iter(const_pointer p) const
 {
 	return const_iterator(p);
 }
+
+template <class T, class Allocator>
+typename Vector<T, Allocator>::iterator
+Vector<T, Allocator>::make_iter(pointer p)
+{
+	return iterator(p);
+}
+
 template <class T, class Allocator>
 typename Vector<T, Allocator>::iterator
 Vector<T, Allocator>::begin()
 {
-	return (make_iter(this->begin));
+	return (this->begin_);
 }
 template <class T, class Allocator>
 typename Vector<T, Allocator>::const_iterator
 Vector<T, Allocator>::begin()	const
 {
-	return (make_iter(this->begin));
+	return ((this->begin_));
 }
 template <class T, class Allocator>
 typename Vector<T, Allocator>::iterator
 Vector<T, Allocator>::end()
 {
-	return (make_iter(this->end));
+	return ((this->end_));
 }
 template <class T, class Allocator>
 typename Vector<T, Allocator>::const_iterator
 Vector<T, Allocator>::end()	const
 {
-	return (make_iter(this->end));
+	return ((this->end_));
 }
 
 //Modifiers:
@@ -318,11 +333,11 @@ void Vector<T, Allocator>::assign(size_type n, const_reference u)
 	if (n <= capacity())
 	{
 		size_type s = size();
-		std::fill_n(this->begin, std::min(n,s), u);
+		std::fill_n(this->begin_, std::min(n,s), u);
 		if (n > s)
 			this->construct_at_end(n - s, u);
 		else
-			this->destruct_at_end(this->begin + n);
+			this->destruct_at_end(this->begin_ + n);
 	}
 	else
 	{
@@ -335,7 +350,7 @@ template <class T, class Allocator>
 template <class InputIterator>
 void Vector<T, Allocator>::assign(InputIterator first, InputIterator last)
 {
-	size_type new_size = static_cast<size_type>(std::distance(first, last));
+	size_type new_size = static_cast<size_type>(last - first);
 	if (new_size <= capacity())
 	{
 		InputIterator mid = last;
@@ -346,7 +361,7 @@ void Vector<T, Allocator>::assign(InputIterator first, InputIterator last)
 			mid = first;
 			std::advance(mid, size());
 		}
-		pointer m = std::copy(first, mid, this->begin);
+		pointer m = std::copy(first, mid, this->begin_);
 		if (growing)
 			construct_at_end(mid, last, new_size - size());
 		else
@@ -369,7 +384,7 @@ void Vector<T, Allocator>::push_back(const_reference x)
 template <class T, class Allocator>
 void Vector<T, Allocator>::pop_back()
 {
-	this->destruct_at_end(this->end - 1);
+	this->destruct_at_end(this->end_ - 1);
 }
 /*
 template <class T, class Allocator>
@@ -429,7 +444,7 @@ OutputIterator Vector<T, Allocator>::move_backward
 template <class T, class Allocator>
 void Vector<T, Allocator>::move_range(pointer from_s, pointer from_e, pointer to)
 {
-	pointer old_last = this->end;
+	pointer old_last = this->end_;
 	difference_type n = old_last - to;
 	pointer i = from_s + n;
 	construct_at_end(from_e - i);
@@ -451,30 +466,30 @@ typename Vector<T, Allocator>::iterator
 Vector<T, Allocator>::erase(const_iterator position)
 {
 	difference_type ps = position - this->begin();
-	pointer p = this->begin + ps;
-	this->destruct_at_end(this->move(p + 1, this->end, p));
-	iterator r = make_iter(p);
-	return (r);
+	pointer p = this->begin_ + ps;
+	this->destruct_at_end(this->move(p + 1, this->end_, p));
+//	iterator r = make_iter(p);
+	return (p);
 }
 
 template <class T, class Allocator>
 typename Vector<T, Allocator>::iterator 
 Vector<T, Allocator>::erase(const_iterator first, const_iterator last)
 {
-	pointer p = this->begin + (first - this->begin());
+	pointer p = this->begin_ + (first - this->begin());
 	if (first != last)
 	{
-		this->destruct_at_end(this->move(p + (last - first), this->end, p));
+		this->destruct_at_end(this->move(p + (last - first), this->end_, p));
 	}
-	iterator r = make_iter(p);
-	return (r);
+//	iterator r = make_iter(p);
+	return (p);
 }
 
 template <class T, class Allocator>
 void Vector<T, Allocator>::swap(Vector& x)
 {
-	std::swap(this->begin, x.begin);
-	std::swap(this->end, x.end);
+	std::swap(this->begin_, x.begin_);
+	std::swap(this->end_, x.end_);
 	std::swap(this->end_cap(), x.end_cap());
 	std::swap(this->alloc(), x.alloc());
 }
@@ -486,7 +501,7 @@ void Vector<T, Allocator>::resize(size_type sz)
 	if (cs < sz)
 		this->append(sz - cs);
 	else
-		this->destruct_at_end(this->begin + sz);
+		this->destruct_at_end(this->begin_ + sz);
 }
 template <class T, class Allocator>
 void Vector<T, Allocator>::resize(size_type sz, const_reference x)
@@ -495,7 +510,7 @@ void Vector<T, Allocator>::resize(size_type sz, const_reference x)
 	if (cs < sz)
 		this->append(sz - cs, x);
 	else
-		this->destruct_at_end(this->begin + sz);
+		this->destruct_at_end(this->begin_ + sz);
 }
 template <class T, class Allocator>
 void  Vector<T, Allocator>::reserve(size_type n)
@@ -508,9 +523,9 @@ void  Vector<T, Allocator>::reserve(size_type n)
 		allocator_type& a = this->alloc();
 		//const value_type& v = typename T;
 		Vector<T, Allocator> temp_vector(n, (void)0, a);
-		temp_vector->end = std::copy(this->begin, this->end, temp_vector->begin);
-		std::swap(this->begin, temp_vector->begin);
-		std::swap(this->end, temp_vector->end);
+		temp_vector->end_ = std::copy(this->begin_, this->end_, temp_vector->begin_);
+		std::swap(this->begin_, temp_vector->begin_);
+		std::swap(this->end_, temp_vector->end_);
 		std::swap(this->end_cap(), this->end_cap());
 	}
 }
@@ -520,13 +535,13 @@ template <class T, class Allocator>
 typename Vector<T, Allocator>::reference 
 Vector<T, Allocator>::operator[](size_type n)
 {
-	return (this->begin[n]);
+	return (this->begin_[n]);
 }
 template <class T, class Allocator>
 typename Vector<T, Allocator>::const_reference 
 Vector<T, Allocator>::operator[](size_type n) const
 {
-	return (this->begin[n]);
+	return (this->begin_[n]);
 }
 template <class T, class Allocator>
 typename Vector<T, Allocator>::reference 
@@ -534,7 +549,7 @@ Vector<T, Allocator>::at(size_type n)
 {
 	if (n >= size())
 		this->throwOutOfRange();
-	return (this->begin[n]);
+	return (this->begin_[n]);
 }
 template <class T, class Allocator>
 typename Vector<T, Allocator>::const_reference 
@@ -542,7 +557,7 @@ Vector<T, Allocator>::at(size_type n) const
 {
 	if (n >= size())
 		this->throwOutOfRange();
-	return (this->begin[n]);
+	return (this->begin_[n]);
 }
 };
 #endif
