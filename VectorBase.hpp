@@ -1,9 +1,10 @@
 #ifndef VECTORBASE_HPP
 #define	VECTORBASE_HPP
 #include "VectorBaseCommon.hpp"
-#include "Pair.hpp"
+#include "utility.hpp"
 #include <memory>
 #include <utility>
+#include <iostream>
 namespace ft
 {
 template <class T, class Allocator = std::allocator<T> >
@@ -35,7 +36,7 @@ protected:
 	VectorBase(const allocator_type& a);
 	~VectorBase();
 	void clear() { destruct_at_end(begin_); }
-	size_type capacity()
+	size_type capacity() const
 		{ return static_cast<size_type>(end_cap() - begin_); }
 	void destruct_at_end(pointer new_last);
 private:
@@ -44,7 +45,7 @@ private:
 		if (alloc() != c.alloc())
 		{
 			clear();
-			allocator_type::deallocate(begin_, capacity());
+			alloc().deallocate(begin_, capacity());
 			begin_ = end_ = end_cap() = nullptr;
 		}
 		alloc() = c.alloc();

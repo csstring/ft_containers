@@ -38,7 +38,10 @@ public:
 	explicit Vector(const allocator_type& a = Allocator());
 	explicit Vector(size_type n, const value_type& x, const allocator_type& a = Allocator());
 	template <class InputIterator>
-	Vector(InputIterator first, InputIterator last, const allocator_type& a = Allocator());
+	Vector(
+		InputIterator first,
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last, 
+		const allocator_type& a = Allocator());
 	Vector(const Vector& copy);
 	~Vector(){}
 	Vector& operator=(const Vector& ref);
@@ -84,12 +87,22 @@ public:
     const_reference front() const { return *this->begin_; }
     reference       back() { return *(this->end_ - 1); }
     const_reference back()  const { return *(this->end_ - 1); }
+	//Allocator
+	allocator_type get_allocator() const
+	{ return (this->alloc()); }
 	//Modifiers:
 	void assign(size_type n, const_reference u);
 	template <class InputIterator>
-	void assign(InputIterator first, InputIterator last);
+	void assign(
+		InputIterator first,
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last);
 	void push_back(const_reference x);
 	void pop_back();
+	void swap(Vector& x);
+	void clear()
+	{
+		base::clear();	
+	}
 /*	iterator insert(const_iterator position, const_reference x);
     iterator insert(const_iterator position, size_type n, const_reference x);
     template <class InputIterator>
@@ -101,7 +114,6 @@ public:
 	OutputIterator move_backward(InputIterator first, InputIterator last, OutputIterator result);
 	iterator erase(const_iterator position);
     iterator erase(const_iterator first, const_iterator last);
-	void swap(Vector&);
 	//Allocator:
 	//Non-member function overloads
 private :
@@ -111,7 +123,9 @@ private :
 	void construct_at_end(size_type n);
 	void construct_at_end(size_type n, const_reference val);
 	template <class InputIterator>
-	void construct_at_end(InputIterator first, InputIterator second, size_type n);
+	void construct_at_end(
+		InputIterator first,
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type second, size_type n);
 	size_type recommend(size_type new_size) const;
 	void append(size_type n);
     void append(size_type n, const_reference x);
@@ -174,7 +188,9 @@ void Vector<T, Allocator>::construct_at_end(size_type n, const_reference val)
 }
 template <class T, class Allocator>
 template <class InputIterator>
-void Vector<T, Allocator>::construct_at_end(InputIterator first, InputIterator second, size_type n)
+void Vector<T, Allocator>::construct_at_end( InputIterator first,
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type second,
+		size_type n)
 {
 	ConstructTransaction tx(*this, n);
 	for (;first != second; ++first ,++tx.pos)
@@ -202,12 +218,12 @@ void Vector<T, Allocator>::append(size_type n)
 	else
 	{
 		allocator_type& a = this->alloc();
-		Vector<T, Allocator> temp_vector(recommend(size() + n), (void)0, a);
-		temp_vector->end_ = std::copy(this->begin_, this->end_, temp_vector->begin_);
+		Vector<T, Allocator> temp_vector(recommend(size() + n), 0, a);
+		temp_vector.end_ = std::copy(this->begin_, this->end_, temp_vector.begin_);
 		temp_vector.construct_at_end(n);
-		std::swap(this->begin_, temp_vector->begin_);
-		std::swap(this->end_, temp_vector->end_);
-		std::swap(this->end_cap(), this->end_cap());
+		std::swap(this->begin_, temp_vector.begin_);
+		std::swap(this->end_, temp_vector.end_);
+		std::swap(this->end_cap(), temp_vector.end_cap());
 	}
 }
 template <class T, class Allocator>
@@ -219,10 +235,10 @@ void Vector<T, Allocator>::append(size_type n, const_reference x)
 	{
 		allocator_type& a = this->alloc();
 		Vector<T, Allocator> temp_vector(recommend(size() + n), x, a);
-		temp_vector->end_ = std::copy(this->begin_, this->end_, temp_vector->begin_);
+		temp_vector.end_ = std::copy(this->begin_, this->end_, temp_vector.begin_);
 		temp_vector.construct_at_end(n, x);
-		std::swap(this->begin_, temp_vector->begin_);
-		std::swap(this->end_, temp_vector->end_);
+		std::swap(this->begin_, temp_vector.begin_);
+		std::swap(this->end_, temp_vector.end_);
 		std::swap(this->end_cap(), this->end_cap());
 	}
 }
@@ -253,9 +269,13 @@ std::cout<< "copy constructure call" <<std::endl;
 		construct_at_end(n);
 	}
 }
+
 template <class T, class Allocator>
 template <class InputIterator>
-Vector<T, Allocator>::Vector(InputIterator first, InputIterator last, const allocator_type& a) : base(a)
+Vector<T, Allocator>::Vector(
+		InputIterator first,
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last, 
+		const allocator_type& a) : base(a)
 {std::cout<< "range constructure call" <<std::endl;
 	size_type n = static_cast<size_type>(last - first);
 	if (n > 0)
@@ -348,7 +368,8 @@ void Vector<T, Allocator>::assign(size_type n, const_reference u)
 }
 template <class T, class Allocator>
 template <class InputIterator>
-void Vector<T, Allocator>::assign(InputIterator first, InputIterator last)
+void Vector<T, Allocator>::assign( InputIterator first,
+		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
 {
 	size_type new_size = static_cast<size_type>(last - first);
 	if (new_size <= capacity())
@@ -521,12 +542,11 @@ void  Vector<T, Allocator>::reserve(size_type n)
 	if (n > capacity())
 	{
 		allocator_type& a = this->alloc();
-		//const value_type& v = typename T;
-		Vector<T, Allocator> temp_vector(n, (void)0, a);
-		temp_vector->end_ = std::copy(this->begin_, this->end_, temp_vector->begin_);
-		std::swap(this->begin_, temp_vector->begin_);
-		std::swap(this->end_, temp_vector->end_);
-		std::swap(this->end_cap(), this->end_cap());
+		Vector<T, Allocator> temp_vector(n, 0, a);
+		temp_vector.end_ = std::copy(this->begin_, this->end_, temp_vector.begin_);
+		std::swap(this->begin_, temp_vector.begin_);
+		std::swap(this->end_, temp_vector.end_);
+		std::swap(this->end_cap(), temp_vector.end_cap());
 	}
 }
 
@@ -558,6 +578,48 @@ Vector<T, Allocator>::at(size_type n) const
 	if (n >= size())
 		this->throwOutOfRange();
 	return (this->begin_[n]);
+}
+//non_member
+template <class T, class Allocator>
+bool operator==(const Vector<T, Allocator>& x, const Vector<T, Allocator>& y)
+{
+    const typename Vector<T, Allocator>::size_type sz = x.size();
+    return sz == y.size() && ft::equal(x.begin(), x.end(), y.begin());
+}
+
+template <class T, class Allocator>
+bool operator!=(const Vector<T, Allocator>& x, const Vector<T, Allocator>& y)
+{
+    return !(x == y);
+}
+
+template <class T, class Allocator>
+bool operator< (const Vector<T, Allocator>& x, const Vector<T, Allocator>& y)
+{
+    return ft::lexicographical_compare(x.begin(), x.end(), y.begin(), y.end());
+}
+
+template <class T, class Allocator>
+bool operator> (const Vector<T, Allocator>& x, const Vector<T, Allocator>& y)
+{
+    return y < x;
+}
+
+template <class T, class Allocator>
+bool operator>=(const Vector<T, Allocator>& x, const Vector<T, Allocator>& y)
+{
+    return !(x < y);
+}
+
+template <class T, class Allocator>
+bool operator<=(const Vector<T, Allocator>& x, const Vector<T, Allocator>& y)
+{
+    return !(y < x);
+}
+template< class T, class Alloc >
+void swap(ft::Vector<T,Alloc>& lhs, ft::Vector<T,Alloc>& rhs)
+{
+	lhs.swap(rhs);
 }
 };
 #endif
