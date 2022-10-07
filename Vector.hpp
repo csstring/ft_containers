@@ -512,12 +512,21 @@ vector<T, Allocator>::insert(const_iterator position, const_reference x)
 	}
 	else
 	{
+		allocator_type& a = this->alloc();
+		vector<T, Allocator> temp_vector(recommend(size() + 1), 0, a);
+		temp_vector.end_ = std::copy(this->begin_, p, temp_vector.begin_);
+		temp_vector.construct_at_end(1, x);
+		temp_vector.end_ = std::copy(p, this->end_, temp_vector.end_);
+		std::swap(this->begin_, temp_vector.begin_);
+		std::swap(this->end_, temp_vector.end_);
+		std::swap(this->end_cap(), temp_vector.end_cap());
+		/*
 		size_type dis = position - this->begin_;
 		reserve(recommend(this->size() + 1));
 		p = this->begin_ + dis;
 		pointer old_last = this->end_;
 		construct_at_end(1, x);
-		std::rotate(p, old_last, this->end_);
+		std::rotate(p, old_last, this->end_);*/
 	}
 	return (p);
 	//return (make_iter(p));
@@ -551,12 +560,14 @@ vector<T, Allocator>::insert(const_iterator position, size_type n, const_referen
 		}
 		else
 		{
-			size_type dis = position - this->begin_;
-			reserve(recommend(this->size() + n));
-			p = this->begin_ + dis;
-			pointer old_last = this->end_;
-			construct_at_end(n, x);
-			std::rotate(p, old_last, this->end_);
+			allocator_type& a = this->alloc();
+			vector<T, Allocator> temp_vector(recommend(size() + n), 0, a);
+			temp_vector.end_ = std::copy(this->begin_, p, temp_vector.begin_);
+			temp_vector.construct_at_end(n, x);
+			temp_vector.end_ = std::copy(p, this->end_, temp_vector.end_);
+			std::swap(this->begin_, temp_vector.begin_);
+			std::swap(this->end_, temp_vector.end_);
+			std::swap(this->end_cap(), temp_vector.end_cap());
 		}
 	}
 	return (p);
@@ -568,22 +579,27 @@ typename vector<T, Allocator>::iterator
 vector<T, Allocator>::insert(const_iterator position, InputIterator first,
 		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last)
 {
-	pointer p = this->begin_ + (position - this->begin());
-	pointer old_last = this->end_;
-	size_type n = static_cast<size_type>(std::distance(first, last));
-	try
-	{
-		reserve(recommend(this->size() + n));
-		construct_at_end(first, last, n);
-		p = this->begin_ + n;
-		old_last = this->end_;
-	}
-	catch(const std::exception& e)
-	{
-		this->erase(old_last, this->end_);
-		throw;
-	}
-	std::rotate(p, old_last, this->end_);
+    pointer p = this->begin_ + (position - begin());
+//    allocator_type& a = this->alloc();
+    pointer old_last = this->end_;
+        try
+        {
+			allocator_type& a = this->alloc();
+			size_type n = std::distance(first, last);
+		vector<T, Allocator> temp_vector(recommend(size() + n), 0, a);
+		temp_vector.end_ = std::copy(this->begin_, p, temp_vector.begin_);
+		temp_vector.construct_at_end(first, last, n);
+		temp_vector.end_ = std::copy(p, this->end_, temp_vector.end_);
+		std::swap(this->begin_, temp_vector.begin_);
+		std::swap(this->end_, temp_vector.end_);
+		std::swap(this->end_cap(), temp_vector.end_cap());
+        }
+        catch (std::exception& p)
+        {
+            erase(old_last, end());
+            throw;
+        }
+//	insert(p, v.begin(), v.end());
 	return (p);
 }
 
@@ -592,8 +608,8 @@ template <class InputIterator, class OutputIterator>
 OutputIterator vector<T, Allocator>::move_backward
 (InputIterator first, InputIterator last, OutputIterator result)
 {
-	for (; first != last; --last, --result)
-		*result = *last;
+	while (first != last)
+		*--result = *--last;
 	return (result);
 }
 
@@ -603,7 +619,11 @@ void vector<T, Allocator>::move_range(pointer from_s, pointer from_e, pointer to
 	pointer old_last = this->end_;
 	difference_type n = old_last - to;
 	pointer i = from_s + n;
-	construct_at_end(from_e - i);
+	ConstructTransaction tx(*this, from_e - i);
+	for (pointer pos = tx.pos; i < from_e; ++i, ++pos, tx.pos = pos)
+	{
+		this->alloc().construct(pos, *i);
+	}
 	move_backward(from_s, from_s + n , old_last);
 }
 

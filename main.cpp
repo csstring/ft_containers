@@ -1,13 +1,10 @@
 #include "vector.hpp"
+#include "common.hpp"
 #include <vector>
 #include <iostream>
 #include <memory>
 #define TESTED_NAMESPACE ft
 #define TESTED_TYPE int
-void printSize(ft::vector<TESTED_TYPE> temp)
-{
-	std::cout << temp.size() << std::endl;
-}
 
 int		main(void)
 {
@@ -18,7 +15,9 @@ int		main(void)
 	for (unsigned long int i = 0; i < vct.size(); ++i)
 		vct[i] = (vct.size() - i) * 3;
 	printSize(vct);
-
+	std::vector<int> temp(10,20);
+//	temp.push_back(*++temp.begin());
+	vct2.push_back(*++vct2.begin());
 	vct2.insert(vct2.end(), 42);
 	vct2.insert(vct2.begin(), 2, 21);
 	printSize(vct2);
