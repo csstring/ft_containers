@@ -62,6 +62,13 @@
 		"type_traits": "cpp",
 		"typeinfo": "cpp",
 		"utility": "cpp",
-		"__memory": "cpp"
+		"__memory": "cpp",
+		"__tree": "cpp",
+		"deque": "cpp",
+		"list": "cpp",
+		"map": "cpp",
+		"set": "cpp",
+		"queue": "cpp",
+		"stack": "cpp"
 	}
 }

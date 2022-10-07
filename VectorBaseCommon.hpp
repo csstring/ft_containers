@@ -8,8 +8,14 @@ class VectorBaseCommon
 {
 protected:
 	VectorBaseCommon(){}
-	void	throwLengthError() const;
-	void	throwOutOfRange() const;
+	void	throwLengthError() const
+	{
+		std::__throw_length_error("vector");
+	}
+	void	throwOutOfRange() const
+	{
+		std::__throw_out_of_range("vector");
+	}
 };
 }
 #endif

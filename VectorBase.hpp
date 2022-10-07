@@ -7,6 +7,20 @@
 #include <iostream>
 namespace ft
 {
+class VectorBaseCommon
+{
+protected:
+	VectorBaseCommon(){}
+	void	throwLengthError() const
+	{
+		std::__throw_length_error("vector");
+	}
+	void	throwOutOfRange() const
+	{
+		std::__throw_out_of_range("vector");
+	}
+};
+
 template <class T, class Allocator = std::allocator<T> >
 class VectorBase : protected VectorBaseCommon
 {
