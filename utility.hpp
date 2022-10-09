@@ -20,16 +20,35 @@ template <class T1, class T2> struct pair
 	}
 };
 
-template <class U1, class U2 >
-bool operator==(const pair<U1,U2>& lhs, const pair<U1,U2>& rhs )
-{ return (lhs.first == rhs.first && lhs.second == rhs.second); }
-
 template <class T1,class T2>
 pair<T1,T2> make_pair (T1 x, T2 y)
 {
 	return ( pair<T1,T2>(x,y) );
 }
 
+template <class T1, class T2>
+  bool operator== (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
+{ return lhs.first==rhs.first && lhs.second==rhs.second; }
+
+template <class T1, class T2>
+  bool operator!= (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
+{ return !(lhs==rhs); }
+
+template <class T1, class T2>
+  bool operator<  (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
+{ return lhs.first<rhs.first || (!(rhs.first<lhs.first) && lhs.second<rhs.second); }
+
+template <class T1, class T2>
+  bool operator<= (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
+{ return !(rhs<lhs); }
+
+template <class T1, class T2>
+  bool operator>  (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
+{ return rhs<lhs; }
+
+template <class T1, class T2>
+  bool operator>= (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
+{ return !(lhs<rhs); }
 template <bool Cond, class T = void> struct enable_if
 {};
 
@@ -61,6 +80,25 @@ template <>          struct is_integral<long>               : public true_type<b
 template <>          struct is_integral<unsigned long>      : public true_type<bool> {};
 template <>          struct is_integral<long long>          : public true_type<bool> {};
 template <>          struct is_integral<unsigned long long> : public true_type<bool> {};
+
+template <class T1, class T2>
+struct is_same : public false_type<bool> {};
+template <class T1>
+struct is_same<T1, T1> : public true_type<bool> {};
+
+template <class T>
+struct remove_const {typedef T type;};
+template <class T>
+struct remove_const<const T> {typedef T type;};
+template <class T>
+struct remove_volatile {typedef T type;};
+template <class T>
+struct remove_volatile<volatile T> {typedef T type;};
+
+template <class T> 
+struct remove_cv {
+	typedef typename remove_volatile<typename remove_const<T>::type>::type type ;
+};
 
 template <class InputIterator1, class InputIterator2>
 bool	equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2)

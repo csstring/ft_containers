@@ -16,10 +16,4 @@ template <class _Up, class... _Args>
 4 warnings generated.
 ed.
 ated.
-rror: expression is not assignable
-    v.push_back(*++vector.begin());
-                 ^ ~~~~~~~~~~~~~~
-../vector_tests/begin().cpp:28:59: note: in instantiation of function template specialization 'begin_test<int>' requested here
-    exit(run_vector_unit_test<int>("begin()", begin_test, begin_test));
-                                                          ^
-4 warnings and 1 error generated.
+ted.

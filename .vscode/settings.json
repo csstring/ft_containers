@@ -69,6 +69,13 @@
 		"map": "cpp",
 		"set": "cpp",
 		"queue": "cpp",
-		"stack": "cpp"
+		"stack": "cpp",
+		"__bits": "cpp",
+		"clocale": "cpp",
+		"csignal": "cpp",
+		"fstream": "cpp",
+		"iomanip": "cpp",
+		"*.ipp": "cpp",
+		"filesystem": "cpp"
 	}
 }
