@@ -31,23 +31,19 @@ time_t timer() {
 }
 
 template <class T>
-int run_vector_unit_test(std::string test_name, std::vector<int> (func1)(std::vector<T>), std::vector<int> (func2)(ft::vector<T>)) {
+int run_stack_unit_test(std::string test_name, std::vector<int> (func1)(std::stack<T>), std::vector<int> (func2)(ft::stack<T>)) {
     int    result;
+
     time_t t1;
-    time_t t2;
-    std::vector<int > res1;
-    std::vector<int > res2;
-    std::vector<int> vector;
-    ft::vector<int> my_vector;
+	time_t t2;
+	std::vector<int > res1;
+	std::vector<int > res2;
+	std::stack<int> stack;
+	ft::stack<int> my_stack;
 
 	printElement(test_name);
-	res1 = func1(vector);
-	res2 = func2(my_vector);
-	std::cout << std::endl;
-	for (unsigned long i = 0; i < res1.size(); i++)
-		std::cout << res1[i] << std::endl;
-	for (unsigned long i = 0; i < res2.size(); i++)
-		std::cout << res2[i] << std::endl;	
+	res1 = func1(stack);
+	res2 = func2(my_stack);
 	if (res1 == res2) {
 	    printElement("OK");
 	    result = 0;
@@ -59,107 +55,40 @@ int run_vector_unit_test(std::string test_name, std::vector<int> (func1)(std::ve
 	t1 = g_end1 - g_start1, t2 = g_end2 - g_start2;
 	(t1 >= t2) ? printElement(GREEN + std::to_string(t2) + "ms" + RESET) : printElement(REDD + std::to_string(t2) + "ms" + RESET);
 	(t1 > t2) ? printElement(REDD + std::to_string(t1) + "ms" + RESET) : printElement(GREEN + std::to_string(t1) + "ms" + RESET);
+
 	std::cout << std::endl;
 
-	return !(!result );
+	return !(!result );;
 }
-class B {
-public:
-    char *l;
-    int i;
-    B():l(nullptr), i(1) {};
-    B(const int &ex) {
-        this->i = ex;
-        this->l = new char('a');
-    };
-    virtual ~B() {
-        delete this->l;
-        this->l = nullptr;
-    };
-};
-
-class A : public B {
-public:
-    A():B(){};
-    A(const B* ex){
-        this->l = new char(*(ex->l));
-        this->i = ex->i;
-        if (ex->i == -1) throw "n";
-    }
-    ~A() {
-        delete this->l;
-        this->l = nullptr;
-    };
-};
-
-template <typename T>
-std::vector<int> insert_test_3(std::vector<T> vector) {
-    std::vector<int> v;
-    std::vector<int> tmp;
-    tmp.assign(2600 * _ratio, 1);
-    vector.assign(4200 * _ratio, 1);
-    g_start1 = timer();
-    vector.insert(vector.end() - 1000 * _ratio, tmp.begin(), tmp.end());
-    g_end1 = timer();
-    v.push_back(vector[3]);
-    v.push_back(vector.size());
-    v.push_back(vector.capacity());
-
-    std::unique_ptr<B> k2(new B(3));
-    std::unique_ptr<B> k3(new B(4));
-    std::unique_ptr<B> k4(new B(-1));
-    std::vector<A> vv;
-    std::vector<B*> v1;
-
-    v1.push_back(&(*k2));
-    v1.push_back(&(*k3));
-    v1.push_back(&(*k4));
-    try { vv.insert(vv.begin(), v1.begin(), v1.end()); }
-    catch (...) {std::cout << "origin catch check"<< std::endl;
-		std::cout << vv.size()<< std::endl;
-		std::cout << vv.capacity()<< std::endl;
-        v.push_back(vv.size());
-        v.push_back(vv.capacity());
-    }
-
-    return v;
+template <class T>
+std::vector<int> empty_test(std::stack<T> stk) {
+	std::vector<int> v;
+	for (int i = 0; i < 200 * _ratio; ++i)
+		stk.push(i);
+	v.push_back(stk.empty());
+	while (stk.size() > 0)
+		stk.pop();
+	g_start1 = timer();
+	v.push_back(stk.empty());
+	g_end1 = timer();
+	return v;
 }
 
-template <typename T>
-std::vector<int> insert_test_3(ft::vector<T> vector) {
-    std::vector<int> v;
-    ft::vector<int> tmp;
-    tmp.assign(2600 * _ratio, 1);
-    vector.assign(4200 * _ratio, 1);
-    g_start2 = timer();
-    vector.insert(vector.end() - 1000 * _ratio, tmp.begin(), tmp.end());
-    g_end2 = timer();
-    v.push_back(vector[3]);
-    v.push_back(vector.size());
-    v.push_back(vector.capacity());
-
-    std::unique_ptr<B> k2(new B(3));
-    std::unique_ptr<B> k3(new B(4));
-    std::unique_ptr<B> k4(new B(-1));
-    ft::vector<A> vv;
-    ft::vector<B*> v1;
-
-    v1.push_back(&(*k2));
-    v1.push_back(&(*k3));
-    v1.push_back(&(*k4));
-    try { vv.insert(vv.begin(), v1.begin(), v1.end()); }
-    catch (...) {
-		std::cout << "catch check"<< std::endl;
-        v.push_back(vv.size());
-        v.push_back(vv.capacity());
-		std::cout << vv.size()<< std::endl;
-		std::cout << vv.capacity()<< std::endl;
-    }
-
-    return v;
+template <class T>
+std::vector<int> empty_test(ft::stack<T> stk) {
+	std::vector<int> v;
+	for (int i = 0; i < 200 * _ratio; ++i)
+		stk.push(i);
+	v.push_back(stk.empty());
+	while (stk.size() > 0)
+		stk.pop();
+	g_start2 = timer();
+	v.push_back(stk.empty());
+	g_end2 = timer();
+	return v;
 }
 
 int main() {
 
-    exit(run_vector_unit_test<int>("insert(range)", insert_test_3, insert_test_3));
+	exit(run_stack_unit_test<int>("empty()", empty_test, empty_test));
 }
