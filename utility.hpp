@@ -84,7 +84,9 @@ template <class T1, class T2>
 struct is_same : public false_type<bool> {};
 template <class T1>
 struct is_same<T1, T1> : public true_type<bool> {};
-
+template <class _Tp, class _Up>
+struct is_same_uncvref : is_same<typename uncvref<_Tp>::type,
+                                   typename uncvref<_Up>::type> {};
 template <class T>
 struct remove_const {typedef T type;};
 template <class T>
@@ -93,11 +95,19 @@ template <class T>
 struct remove_volatile {typedef T type;};
 template <class T>
 struct remove_volatile<volatile T> {typedef T type;};
-
+template <class _Tp> 
+struct remove_reference        {typedef _Tp type;};
+template <class _Tp> 
+struct remove_reference<_Tp&>  {typedef _Tp type;};
 template <class T> 
 struct remove_cv {
 	typedef typename remove_volatile<typename remove_const<T>::type>::type type ;
 };
+template <class _Tp>
+struct uncvref  {
+    typedef typename remove_cv<typename remove_reference<_Tp>::type>::type type;
+};
+
 
 template <class InputIterator1, class InputIterator2>
 bool	equal(InputIterator1 first1, InputIterator1 last1, InputIterator2 first2)

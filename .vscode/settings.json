@@ -76,6 +76,7 @@
 		"fstream": "cpp",
 		"iomanip": "cpp",
 		"*.ipp": "cpp",
-		"filesystem": "cpp"
+		"filesystem": "cpp",
+		"__functional_base_03": "cpp"
 	}
 }
