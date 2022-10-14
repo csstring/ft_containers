@@ -1,6 +1,8 @@
 #ifndef TREE_HPP
 #define TREE_HPP
+#include "iterator.hpp"
 
+namespace ft{
 enum _Rb_tree_color { _S_red = false, _S_black = true };
 
 struct _Rb_tree_node_base
@@ -82,4 +84,326 @@ struct _Rb_tree_header
 	}
 };
 
+template<typename _Val>
+struct _Rb_tree_node : public _Rb_tree_node_base
+{
+	typedef _Rb_tree_node<_Val>* _Link_type;
+
+	_Val _M_value_field;
+
+	_Val* _M_valptr() { return &_M_value_field; }
+	const _Val* _M_valptr() const { return &_M_value_field; }
+};
+
+_Rb_tree_node_base* _Rb_tree_increment(_Rb_tree_node_base* __x) throw ();
+const _Rb_tree_node_base* _Rb_tree_increment(const _Rb_tree_node_base* __x) throw ();
+_Rb_tree_node_base* _Rb_tree_decrement(_Rb_tree_node_base* __x) throw ();
+const _Rb_tree_node_base* _Rb_tree_decrement(const _Rb_tree_node_base* __x) throw ();
+
+template<typename _Tp>
+struct _Rb_tree_iterator
+{
+	typedef _Tp  value_type;
+	typedef _Tp& reference;
+	typedef _Tp* pointer;
+
+	typedef std::bidirectional_iterator_tag iterator_category;
+	typedef ptrdiff_t			 difference_type;
+
+	typedef _Rb_tree_iterator<_Tp>		_Self;
+	typedef _Rb_tree_node_base::_Base_ptr	_Base_ptr;
+	typedef _Rb_tree_node<_Tp>*		_Link_type;
+
+	_Base_ptr _M_node;
+	
+	_Rb_tree_iterator() : _M_node() { }
+	
+	explicit _Rb_tree_iterator(_Base_ptr __x) : _M_node(__x) {}
+	
+	reference operator*() const
+	{ return *static_cast<_Link_type>(_M_node)->_M_valptr(); }
+
+	pointer operator->() const
+	{ return static_cast<_Link_type> (_M_node)->_M_valptr(); }
+
+	_Self& operator++()
+	{
+		_M_node = _Rb_tree_increment(_M_node);
+		return *this;
+	}
+
+	_Self operator++(int)
+	{	
+		_Self __tmp = *this;
+		_M_node = _Rb_tree_increment(_M_node);
+		return __tmp;
+	}
+
+	_Self& operator--()
+	{
+		_M_node = _Rb_tree_decrement(_M_node);
+		return *this;
+	}
+
+	_Self operator--(int)
+	{
+		_Self __tmp = *this;
+		_M_node = _Rb_tree_decrement(_M_node);
+		return __tmp;
+	}
+
+	friend bool operator==(const _Self& __x, const _Self& __y) 
+	{ return __x._M_node == __y._M_node; }
+	friend bool operator!=(const _Self& __x, const _Self& __y)
+	{ return !(__x._M_node == __y._M_node); }
+
+};
+
+template<typename _Tp>
+struct _Rb_tree_const_iterator
+{
+	typedef _Tp	 value_type;
+	typedef const _Tp& reference;
+	typedef const _Tp* pointer;
+	typedef _Rb_tree_iterator<_Tp> iterator;
+	typedef std::bidirectional_iterator_tag iterator_category;
+	typedef ptrdiff_t			 difference_type;
+	
+	typedef _Rb_tree_const_iterator<_Tp>		_Self;
+	typedef _Rb_tree_node_base::_Const_Base_ptr	_Base_ptr;
+	typedef const _Rb_tree_node<_Tp>*			_Link_type;
+	_Base_ptr _M_node;
+
+	_Rb_tree_const_iterator() : _M_node() { }
+
+    explicit _Rb_tree_const_iterator(_Base_ptr __x) : _M_node(__x) {}
+
+	_Rb_tree_const_iterator(const iterator& __it) : _M_node(__it._M_node) { }
+
+	iterator _M_const_cast() const
+	{ return iterator(const_cast<typename iterator::_Base_ptr>(_M_node)); }
+
+    reference operator*() const
+	{ return *static_cast<_Link_type>(_M_node)->_M_valptr(); }
+
+    pointer operator->() const
+    { return static_cast<_Link_type>(_M_node)->_M_valptr(); }
+
+	_Self& operator++()
+	{
+		_M_node = _Rb_tree_increment(_M_node);
+		return *this;
+	}
+
+	_Self operator++(int)
+	{
+		_Self __tmp = *this;
+		_M_node = _Rb_tree_increment(_M_node);
+		return __tmp;
+	}
+
+	_Self& operator--()
+	{
+		_M_node = _Rb_tree_decrement(_M_node);
+		return *this;
+	}
+
+	_Self operator--(int)
+	{
+		_Self __tmp = *this;
+		_M_node = _Rb_tree_decrement(_M_node);
+		return __tmp;
+	}
+	friend bool operator==(const _Self& __x, const _Self& __y) 
+	{ return __x._M_node == __y._M_node; }
+	friend bool operator!=(const _Self& __x, const _Self& __y)
+	{ return !(__x._M_node == __y._M_node); }
+};
+
+void _Rb_tree_insert_and_rebalance(const bool __insert_left,
+				_Rb_tree_node_base* __x,
+				_Rb_tree_node_base* __p,
+				_Rb_tree_node_base& __header) throw ();
+
+_Rb_tree_node_base* _Rb_tree_rebalance_for_erase(_Rb_tree_node_base* const __z, 
+						_Rb_tree_node_base& __header) throw ();
+
+template<typename _Key, typename _Val, typename _KeyOfValue, 
+			typename _Compare, typename _Alloc = std::allocator<_Val> >
+class _Rb_tree
+{
+	typedef typename _Alloc::template rebind<_Rb_tree_node<_Val>::other _Node_allocator;
+//    typedef __gnu_cxx::__alloc_traits<_Node_allocator> allocator_type;
+
+protected:
+    typedef _Rb_tree_node_base* 		_Base_ptr;
+    typedef const _Rb_tree_node_base* 	_Const_Base_ptr;
+    typedef _Rb_tree_node<_Val>* 		_Link_type;
+    typedef const _Rb_tree_node<_Val>*	_Const_Link_type;
+
+private:
+public:
+    typedef _Key 				key_type;
+	typedef _Val 				value_type;
+	typedef value_type* 			pointer;
+    typedef const value_type* 		const_pointer;
+    typedef value_type& 			reference;
+    typedef const value_type& 		const_reference;
+    typedef size_t 				size_type;
+    typedef ptrdiff_t 			difference_type;
+    typedef _Alloc 				allocator_type;
+
+	_Node_allocator& _M_get_Node_allocator() { return this->_M_impl; }
+	const _Node_allocator& _M_get_Node_allocator() const { return this->_M_impl; }
+	allocator_type get_allocator() const { return allocator_type(_M_get_Node_allocator()); }
+protected:
+	_Link_type _M_get_node() { return allocator_type::allocate(1); }
+	void _M_put_node(_Link_type __p) { allocator_type::deallocate(__p, 1); }
+	void _M_construct_node(_Link_type __node, const value_type& __x)
+	{
+		try
+		{ 
+			get_allocator().construct(__node->_M_valptr(), __x); 
+		}
+		catch(...)
+		{
+			_M_put_node(__node);
+			throw;
+		}
+	}
+	_Link_type _M_create_node(const value_type& __x)
+	{
+		_Link_type __tmp = _M_get_node();
+		_M_construct_node(__tmp, __x);
+		return __tmp;
+	}
+
+	void _M_destroy_node(_Link_type __p) { get_allocator().destroy(__p->_M_valptr()); }
+	void _M_drop_node(_Link_type __p) 
+	{
+		_M_destroy_node(__p);
+		_M_put_node(__p);
+	}
+	template<bool _MoveValue, typename _NodeGen>
+	_Link_type _M_clone_node(_Link_type __x, _NodeGen& __node_gen)
+	{
+		_Link_type __tmp = this->_M_create_node(*__x->_M_valptr())
+		__tmp->_M_color = __x->_M_color;
+		__tmp->_M_left = 0;
+		__tmp->_M_right = 0;
+		return __tmp;
+	}
+
+	template<typename _Key_compare>
+	struct _Rb_tree_impl: public _Node_allocator
+						, public _Rb_tree_key_compare<_Key_compare>
+						, public _Rb_tree_header
+	{
+		typedef _Rb_tree_key_compare<_Key_compare> _Base_key_compare;
+
+		_Rb_tree_impl() : _Node_allocator() {}
+		_Rb_tree_impl(const _Rb_tree_impl& __x) 
+		: _Node_allocator(__x) , _Base_key_compare(__x._M_key_compare) , _Rb_tree_header() {}
+
+		_Rb_tree_impl(const _Key_compare& __comp, const _Node_allocator& __a)
+		: _Node_allocator(__a), _Base_key_compare(__comp) {}
+	};
+	_Rb_tree_impl<_Compare> _M_impl;
+	_Base_ptr& _M_root() { return this->_M_impl._M_header._M_parent; }
+	_Const_Base_ptr _M_root() const { return this->_M_impl._M_header._M_parent; }
+	_Base_ptr& _M_leftmost() { return this->_M_impl._M_header._M_left; }
+	_Const_Base_ptr _M_leftmost() const { return this->_M_impl._M_header._M_left; }
+	_Base_ptr& _M_rightmost() { return this->_M_impl._M_header._M_right; }
+	_Const_Base_ptr _M_rightmost() const { return this->_M_impl._M_header._M_right; }
+	_Link_type _M_mbegin() const { return static_cast<_Link_type>(this->_M_impl._M_header._M_parent); }
+	_Link_type _M_begin() { return _M_mbegin(); }
+	_Const_Link_type _M_begin() const 
+	{ return static_cast<_Const_Link_type>(this->_M_impl._M_header._M_parent); }
+	_Base_ptr _M_end() { return &this->_M_impl._M_header; }
+	_Const_Base_ptr _M_end() const { return &this->_M_impl._M_header; }
+	
+	static const _Key&_S_key(_Const_Link_type __x)
+	{ return _KeyOfValue()(*__x->_M_valptr()); }
+
+	static _Link_type _S_left(_Base_ptr __x) 
+	{ return static_cast<_Link_type>(__x->_M_left); }
+
+	static _Const_Link_type _S_left(_Const_Base_ptr __x) 
+	{ return static_cast<_Const_Link_type>(__x->_M_left); }
+
+	static _Link_type _S_right(_Base_ptr __x) 
+	{ return static_cast<_Link_type>(__x->_M_right); }
+
+	static _Const_Link_type _S_right(_Const_Base_ptr __x) 
+	{ return static_cast<_Const_Link_type>(__x->_M_right); }
+
+	static const _Key& _S_key(_Const_Base_ptr __x)
+	{ return _S_key(static_cast<_Const_Link_type>(__x)); }
+
+	static _Base_ptr_S_minimum(_Base_ptr __x) 
+	{ return _Rb_tree_node_base::_S_minimum(__x); }
+
+	static _Const_Base_ptr _S_minimum(_Const_Base_ptr __x) 
+	{ return _Rb_tree_node_base::_S_minimum(__x); }
+
+	static _Base_ptr _S_maximum(_Base_ptr __x) 
+	{ return _Rb_tree_node_base::_S_maximum(__x); }
+
+	static _Const_Base_ptr _S_maximum(_Const_Base_ptr __x) 
+	{ return _Rb_tree_node_base::_S_maximum(__x); }
+public:
+	typedef _Rb_tree_iterator<value_type>       iterator;
+	typedef _Rb_tree_const_iterator<value_type> const_iterator;
+	typedef typename ft::_reverse_iterator<iterator> reverse_iterator;
+	typedef typename ft::_reverse_iterator<const iterator> reverse_iterator;
+
+	ft::pair<_Base_ptr, _Base_ptr> _M_get_insert_unique_pos(const key_type& __k);
+    ft::pair<_Base_ptr, _Base_ptr> _M_get_insert_equal_pos(const key_type& __k);
+
+	template<typename _NodeGen>
+	iterator _M_insert_(_Base_ptr __x, _Base_ptr __y, const value_type& __v, _NodeGen&);
+
+    iterator _M_insert_lower(_Base_ptr __y, const value_type& __v);
+	iterator _M_insert_equal_lower(const value_type& __x);
+
+	enum { __as_lvalue, __as_rvalue };
+	
+	template<bool _MoveValues, typename _NodeGen>
+	_Link_type _M_copy(_Link_type, _Base_ptr, _NodeGen&);
+	
+	template<bool _MoveValues, typename _NodeGen>
+	_Link_type _M_copy(const _Rb_tree& __x, _NodeGen& __gen)
+	{
+		_Link_type __root = _M_copy<_MoveValues>(__x._M_mbegin(), _M_end(), __gen);
+		_M_leftmost() = _S_minimum(__root);
+		_M_rightmost() = _S_maximum(__root);
+		_M_impl._M_node_count = __x._M_impl._M_node_count;
+		return __root;
+	}
+	_Link_type _M_copy(const _Rb_tree& __x)
+    {
+		_Alloc_node __an(*this);
+		return _M_copy<__as_lvalue>(__x, __an);
+	}
+
+      void
+      _M_erase(_Link_type __x);
+
+      iterator
+      _M_lower_bound(_Link_type __x, _Base_ptr __y,
+		     const _Key& __k);
+
+      const_iterator
+      _M_lower_bound(_Const_Link_type __x, _Const_Base_ptr __y,
+		     const _Key& __k) const;
+
+      iterator
+      _M_upper_bound(_Link_type __x, _Base_ptr __y,
+		     const _Key& __k);
+
+      const_iterator
+      _M_upper_bound(_Const_Link_type __x, _Const_Base_ptr __y,
+		     const _Key& __k) const;
+}
+}
 #endif

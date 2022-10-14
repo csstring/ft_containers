@@ -1267,7 +1267,7 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
 
       iterator
       lower_bound(const key_type& __k)
-      { return _M_lower_bound(_M_begin(), _M_end(), __k); }
+      { return _M_lower_bound(_M_begin(), _M_end(), __k);0 }
 
       const_iterator
       lower_bound(const key_type& __k) const

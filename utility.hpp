@@ -134,5 +134,25 @@ bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1,
 	return (first2 != last2);
 }
 
+template <class _Tp>
+struct pointer_traits<_Tp*>
+{
+    typedef _Tp*      pointer;
+    typedef _Tp       element_type;
+    typedef ptrdiff_t difference_type;
+    template <class _Up> 
+	struct rebind {typedef _Up* other;};
+};
+
+template <class pair>
+struct _Select1st
+{
+	typename pair::first_type &operator()(pair &__x) const { return __x.first; }
+	const typename pair::first_type &operator()(const pair &__x) const { return __x.first;
+}
+
+};
+
+
 }
 #endif

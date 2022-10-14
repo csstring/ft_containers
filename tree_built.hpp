@@ -439,10 +439,10 @@ struct tree_node_base_types
   typedef _VoidPtr                                               void_pointer;
 
   typedef tree_node_base<void_pointer>                      node_base_type;
-  typedef typename node_base_type* node_base_pointer;
+  typedef typename pointer_traits<node_base_type>::pointer node_base_pointer;
 
   typedef tree_end_node<node_base_pointer>                  end_node_type;
-  typedef typename end_node_type* end_node_pointer;
+  typedef typename pointer_traits<end_node_type>::pointer end_node_pointer;
   typedef end_node_pointer parent_pointer;
 };
 
@@ -453,11 +453,11 @@ template <class _Tp, class _AllocPtr, class _KVTypes>
 struct tree_map_pointer_types<_Tp, _AllocPtr, _KVTypes, true> 
 {
   typedef typename _KVTypes::map_value_type   _Mv;
-  typedef typename _Mv* map_value_type_pointer;
-  typedef typename const _Mv* const_map_value_type_pointer;
+  typedef typename pointer_traits<_Mv>::pointer map_value_type_pointer;
+  typedef typename pointer_traits<const _Mv>::pointer const_map_value_type_pointer;
 };
 
-template <class _NodePtr, class _NodeT>
+template <class _NodePtr, class _NodeT = typename pointer_traits<_NodePtr>::element_type>
 struct tree_node_types;
 
 template <class _NodePtr, class _Tp, class _VoidPtr>
@@ -475,8 +475,8 @@ public:
   typedef _NodePtr                                              node_pointer;
 
   typedef _Tp                                                 node_value_type;
-  typedef typename node_value_type* node_value_type_pointer;
-  typedef typename const node_value_type* const_node_value_type_pointer;
+  typedef typename pointer_traits<node_value_type>::pointer node_value_type_pointer;
+  typedef typename pointer_traits<const node_value_type>::pointer const_node_value_type_pointer;
   typedef typename base::end_node_pointer iter_pointer;
 };
 
@@ -556,6 +556,137 @@ public:
     template <class> friend class map_node_destructor;
 };
 
+template <class _Tp, class _NodePtr, class _DiffType>
+class tree_iterator
+{
+    typedef tree_node_types<_NodePtr>                     _NodeTypes;
+    typedef _NodePtr                                        node_pointer;
+    typedef typename _NodeTypes::node_base_pointer        node_base_pointer;
+    typedef typename _NodeTypes::end_node_pointer         end_node_pointer;
+    typedef typename _NodeTypes::iter_pointer             iter_pointer;
+//    typedef pointer_traits<node_pointer> pointer_traits;
+
+    iter_pointer ptr_;
+
+public:
+    typedef std::bidirectional_iterator_tag                     iterator_category;
+    typedef _Tp                                            value_type;
+    typedef _DiffType                                      difference_type;
+    typedef value_type&                                    reference;
+    typedef typename _NodeTypes::node_value_type_pointer pointer;
+
+
+	tree_iterator() {}
+	reference operator*() const {return get_np()->value_;}
+	pointer operator->() const {return static_cast<pointer>(get_np());}
+
+    tree_iterator& operator++()
+	{
+		ptr_ = static_cast<iter_pointer>(
+			tree_next_iter<end_node_pointer>(static_cast<node_base_pointer>(ptr_)));
+		return *this;
+    }
+    tree_iterator operator++(int) 
+	{
+		tree_iterator t(*this); 
+		++(*this); 
+		return t;
+	}
+    tree_iterator& operator--() 
+	{
+    	ptr_ = static_cast<iter_pointer>(tree_prev_iter<node_base_pointer>(
+        	static_cast<end_node_pointer>(ptr_)));
+		return *this;
+    }
+
+    tree_iterator operator--(int)
+	{
+		tree_iterator t(*this); 
+		--(*this); 
+		return t;
+	}
+    friend bool operator==(const tree_iterator& x, const tree_iterator& y)
+		{return x.ptr_ == y.ptr_;}
+    friend bool operator!=(const tree_iterator& x, const tree_iterator& y)
+		{return !(x == y);}
+
+private:
+    explicit tree_iterator(node_pointer p) : ptr_(p) {}
+	explicit tree_iterator(end_node_pointer p) : ptr_(p) {}
+    node_pointer get_np() const { return static_cast<node_pointer>(ptr_); }
+    template <class, class, class> friend class tree;
+    template <class, class, class> friend class tree_const_iterator;
+    template <class> friend class map_iterator;
+    template <class, class, class, class> friend class map;
+    template <class, class, class> friend class set;
+};
+
+template <class _Tp, class _NodePtr, class _DiffType>
+class tree_const_iterator
+{
+    typedef tree_node_types<_NodePtr>                     _NodeTypes;
+    typedef typename _NodeTypes::node_pointer             node_pointer;
+    typedef typename _NodeTypes::node_base_pointer        node_base_pointer;
+    typedef typename _NodeTypes::end_node_pointer         end_node_pointer;
+    typedef typename _NodeTypes::iter_pointer             iter_pointer;
+//    typedef pointer_traits<node_pointer>::pointer pointer_traits;
+
+    iter_pointer ptr_;
+
+public:
+    typedef std::bidirectional_iterator_tag                           iterator_category;
+    typedef _Tp                                                  value_type;
+    typedef _DiffType                                            difference_type;
+    typedef const value_type&                                    reference;
+    typedef typename _NodeTypes::const_node_value_type_pointer pointer;
+
+	tree_const_iterator() {}
+private:
+    typedef tree_iterator<value_type, node_pointer, difference_type> non_const_iterator;
+public:
+
+    tree_const_iterator(non_const_iterator p)  : ptr_(p.ptr_) {}
+	reference operator*() const {return get_np()->value_;}
+	pointer operator->() const {return static_cast<pointer>(get_np());}
+    tree_const_iterator& operator++() 
+	{
+    	ptr_ = static_cast<iter_pointer>(
+        tree_next_iter<end_node_pointer>(static_cast<node_base_pointer>(ptr_)));
+		return *this;
+    }
+    tree_const_iterator operator++(int)
+	{
+		tree_const_iterator t(*this); 
+		++(*this); 
+		return t;
+	}
+    tree_const_iterator& operator--() 
+	{
+		ptr_ = static_cast<iter_pointer>(tree_prev_iter<node_base_pointer>(
+        	static_cast<end_node_pointer>(ptr_)));
+		return *this;
+    }
+    tree_const_iterator operator--(int)
+	{
+		tree_const_iterator t(*this);
+		--(*this); 
+		return t;
+	}
+
+    friend bool operator==(const tree_const_iterator& x, const tree_const_iterator& y)
+        {return x.ptr_ == y.ptr_;}
+    friend bool operator!=(const tree_const_iterator& x, const tree_const_iterator& y)
+        {return !(x == y);}
+
+private:
+    explicit tree_const_iterator(node_pointer p) : ptr_(p) {}
+    explicit tree_const_iterator(end_node_pointer p) : ptr_(p) {}
+    node_pointer get_np() const { return static_cast<node_pointer>(ptr_); }
+    template <class, class, class> friend class tree;
+    template <class, class, class, class> friend class map;
+    template <class, class, class> friend class set;
+    template <class> friend class map_const_iterator;
+};
 
 }
 #endif

@@ -78,5 +78,6 @@
 		"*.ipp": "cpp",
 		"filesystem": "cpp",
 		"__functional_base_03": "cpp"
-	}
+	},
+	"C_Cpp.errorSquiggles": "Disabled"
 }
