@@ -94,16 +94,15 @@ _GLIBCXX_BEGIN_NAMESPACE_VERSION
   static _Rb_tree_node_base*
   local_Rb_tree_decrement(_Rb_tree_node_base* __x) throw ()
   {
-    if (__x->_M_color == _S_red
-        && __x->_M_parent->_M_parent == __x)
-      __x = __x->_M_right;
+    if (__x->_M_color == _S_red && __x->_M_parent->_M_parent == __x)
+    	__x = __x->_M_right;
     else if (__x->_M_left != 0)
-      {
+    {
         _Rb_tree_node_base* __y = __x->_M_left;
         while (__y->_M_right != 0)
           __y = __y->_M_right;
         __x = __y;
-      }
+    }
     else
       {
         _Rb_tree_node_base* __y = __x->_M_parent;
