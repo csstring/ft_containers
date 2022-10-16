@@ -7,8 +7,8 @@
 /**************************************************/
 #define VECTOR			"../../../vector.hpp"
 #define STACK			"../../../stack.hpp"
-#define MAP			  	"../../../Map.hpp"
-#define SET			  	"../../../Set.hpp"
+#define MAP			  	"../../../map.hpp"
+#define SET			  	"../../../set.hpp"
 #define UTILITIES		"../../../utility.hpp"
 
 /* comment this to turn OFF flags (-WWW, -std=98) */
@@ -19,8 +19,8 @@
 /**************************************************/
 #define	_vector 			ft::vector
 #define	_stack	 			ft::stack
-#define	_map 				ft::Map
-#define	_set	 			ft::Set
+#define	_map 				ft::map
+#define	_set	 			ft::set
 #define	_is_integral 		ft::is_integral
 #define	_enable_if 			ft::enable_if
 #define	_pair 				ft::pair

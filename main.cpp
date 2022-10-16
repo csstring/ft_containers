@@ -1,5 +1,5 @@
-#include "vector.hpp"
-#include "common.hpp"
+#include <map>
+#include "map.hpp"
 #include <vector>
 #include <iostream>
 #include <memory>
@@ -17,6 +17,7 @@ const std::string WHITE = "\x1B[1;39m";
 const std::string RESET = "\033[0m";
 int _test_passed_cnt = 0;
 int _ratio = 10000;
+
 void printElement(std::string t) {
 	if (t == "OK")
 	    t = GREEN + t + RESET;
@@ -30,20 +31,19 @@ time_t timer() {
 	return msecs_time;
 }
 
-template <class T>
-int run_stack_unit_test(std::string test_name, std::vector<int> (func1)(std::stack<T>), std::vector<int> (func2)(ft::stack<T>)) {
+template <class T, class V>
+int run_map_unit_test(std::string test_name, std::vector<int> (func1)(std::map<T, V>), std::vector<int> (func2)(ft::map<T, V>)) {
     int    result;
-
-    time_t t1;
+	time_t t1;
 	time_t t2;
 	std::vector<int > res1;
 	std::vector<int > res2;
-	std::stack<int> stack;
-	ft::stack<int> my_stack;
+	std::map<int, int> map;
+	ft::map<int, int> my_map;
 
 	printElement(test_name);
-	res1 = func1(stack);
-	res2 = func2(my_stack);
+	res1 = func1(map);
+	res2 = func2(my_map);
 	if (res1 == res2) {
 	    printElement("OK");
 	    result = 0;
@@ -55,40 +55,49 @@ int run_stack_unit_test(std::string test_name, std::vector<int> (func1)(std::sta
 	t1 = g_end1 - g_start1, t2 = g_end2 - g_start2;
 	(t1 >= t2) ? printElement(GREEN + std::to_string(t2) + "ms" + RESET) : printElement(REDD + std::to_string(t2) + "ms" + RESET);
 	(t1 > t2) ? printElement(REDD + std::to_string(t1) + "ms" + RESET) : printElement(GREEN + std::to_string(t1) + "ms" + RESET);
-
 	std::cout << std::endl;
 
-	return !(!result );;
+	return !(!result);
 }
-template <class T>
-std::vector<int> empty_test(std::stack<T> stk) {
-	std::vector<int> v;
-	for (int i = 0; i < 200 * _ratio; ++i)
-		stk.push(i);
-	v.push_back(stk.empty());
-	while (stk.size() > 0)
-		stk.pop();
-	g_start1 = timer();
-	v.push_back(stk.empty());
-	g_end1 = timer();
-	return v;
+template <class T, class V>
+std::vector<int> copy_constructor_test(std::map<T, V> mp) {
+
+    std::vector<int> v;
+
+    for (int i = 0, j = 10; i < 30 * _ratio; ++i, ++j) {
+        mp.insert(std::make_pair(i, j));
+    }
+    g_start1 = timer();
+    std::map<int, int> mp2(mp.begin(), mp.end());
+    g_end1 = timer();
+    std::map<int, int>::iterator it = mp2.begin();
+    for (int i = 0; i < 30 * _ratio; ++i, it++) {
+        v.push_back(it->first);
+        v.push_back(it->second);
+    }
+    return v;
 }
 
-template <class T>
-std::vector<int> empty_test(ft::stack<T> stk) {
-	std::vector<int> v;
-	for (int i = 0; i < 200 * _ratio; ++i)
-		stk.push(i);
-	v.push_back(stk.empty());
-	while (stk.size() > 0)
-		stk.pop();
-	g_start2 = timer();
-	v.push_back(stk.empty());
-	g_end2 = timer();
-	return v;
+template <class T, class V>
+std::vector<int> copy_constructor_test(ft::map<T, V> mp) {
+
+    std::vector<int> v;
+
+    for (int i = 0, j = 10; i < 30 * _ratio; ++i, ++j) {
+        mp.insert(ft::make_pair(i, j));
+    }
+    g_start2 = timer();
+    ft::map<int, int> mp2(mp.begin(), mp.end());
+    g_end2 = timer();
+    ft::map<int, int>::iterator it = mp2.begin();
+    for (int i = 0; i < 30 * _ratio; ++i, it++) {
+        v.push_back(it->first);
+        v.push_back(it->second);
+    }
+    return v;
 }
 
 int main() {
 
-	exit(run_stack_unit_test<int>("empty()", empty_test, empty_test));
+    exit(run_map_unit_test<int, int>("constructor(InputIt)", copy_constructor_test, copy_constructor_test));
 }

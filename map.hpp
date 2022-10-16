@@ -5,13 +5,13 @@
 namespace ft{
 	
 template <typename _Key, typename _Tp, typename _Compare = std::less<_Key>, 
-			typename _Alloc = std::allocator<ft::pair<const _Key, _Tp> > >
+			typename _Alloc = std::allocator<pair<const _Key, _Tp> > >
 class map
 {
 public:
     typedef _Key						key_type;
     typedef _Tp							mapped_type;
-    typedef ft::pair<const _Key, _Tp>	value_type;
+    typedef pair<const _Key, _Tp>	value_type;
     typedef _Compare					key_compare;
 	typedef _Alloc						allocator_type;
 private:
@@ -73,7 +73,7 @@ public:
 	size_type size() const { return _M_t.size(); }
 	size_type max_size() const { return _M_t.max_size(); }
 //Element access:
-	mapped_type& operator[](const key_type& k)
+	mapped_type& operator[](const key_type& __k)
 	{
 		iterator __i = lower_bound(__k);
 		if (__i == end() || key_comp()(__k, (*__i).first))
@@ -83,7 +83,7 @@ public:
 //Modifiers:
 	iterator insert(iterator __position, const value_type& __x)
 	{ return _M_t._M_insert_unique_(__position, __x); }
-	std::pair<iterator, bool> insert(const value_type& __x)
+	pair<iterator, bool> insert(const value_type& __x)
 	{ return _M_t._M_insert_unique(__x); }
 	template<typename _InputIterator>
 	void insert(_InputIterator __first, _InputIterator __last)
@@ -98,7 +98,68 @@ public:
 
 	void swap(map& __x) { _M_t.swap(__x._M_t); }
 	void clear() { _M_t.clear(); }
-}
+
+// observers
+key_compare key_comp() const { return _M_t.key_comp(); }
+value_compare value_comp() const { return value_compare(_M_t.key_comp()); }
+//operation
+iterator find(const key_type& __x) { return _M_t.find(__x); }
+const_iterator find(const key_type& __x) const { return _M_t.find(__x); }
+size_type count(const key_type& __x) const 
+{ return _M_t.find(__x) == _M_t.end() ? 0 : 1; }
+
+iterator lower_bound(const key_type& __x) { return _M_t.lower_bound(__x); }
+const_iterator lower_bound(const key_type& __x) const { return _M_t.lower_bound(__x); }
+iterator upper_bound(const key_type& __x) { return _M_t.upper_bound(__x); }
+const_iterator upper_bound(const key_type& __x) const { return _M_t.upper_bound(__x); }
+
+pair<iterator, iterator> equal_range(const key_type& __x)
+{ return _M_t.equal_range(__x); }
+pair<const_iterator, const_iterator> equal_range(const key_type& __x) const
+{ return _M_t.equal_range(__x); }
+template<typename _K1, typename _T1, typename _C1, typename _A1>
+friend bool operator==(const map<_K1, _T1, _C1, _A1>&,
+		   				const map<_K1, _T1, _C1, _A1>&);
+template<typename _K1, typename _T1, typename _C1, typename _A1>
+friend bool operator<(const map<_K1, _T1, _C1, _A1>&,
+		  				const map<_K1, _T1, _C1, _A1>&);
+};
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+inline bool operator==(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+	       				const map<_Key, _Tp, _Compare, _Alloc>& __y)
+{ return __x._M_t == __y._M_t; }
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+inline bool operator<(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+	      				const map<_Key, _Tp, _Compare, _Alloc>& __y)
+{ return __x._M_t < __y._M_t; }
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+inline bool operator!=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+	       				const map<_Key, _Tp, _Compare, _Alloc>& __y)
+{ return !(__x == __y); }
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+inline bool operator>(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+	      				const map<_Key, _Tp, _Compare, _Alloc>& __y)
+{ return __y < __x; }
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+inline bool operator<=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+	       				const map<_Key, _Tp, _Compare, _Alloc>& __y)
+{ return !(__y < __x); }
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+inline bool operator>=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+	       				const map<_Key, _Tp, _Compare, _Alloc>& __y)
+{ return !(__x < __y); }
+
+template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
+inline void swap(map<_Key, _Tp, _Compare, _Alloc>& __x,
+					map<_Key, _Tp, _Compare, _Alloc>& __y)
+{ __x.swap(__y); }
 
 }
+
 #endif

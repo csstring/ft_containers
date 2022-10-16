@@ -1,1 +1,152 @@
-
+In file included from ../map_tests/operator >=.cpp:1:
+In file included from ../map_tests/../system/system_methods.ipp:2:
+In file included from ../map_tests/../system/lib.hpp:30:
+../map_tests/../system/Alloc.hpp:55:27: warning: variadic templates are a C++11 extension [-Wc++11-extensions]
+template <class _Up, class... _Args>
+                          ^
+../map_tests/../system/Alloc.hpp:58:34: warning: rvalue references are a C++11 extension [-Wc++11-extensions]
+        construct(_Up* __p, _Args&&... __args)
+                                 ^
+../map_tests/../system/Alloc.hpp:164:27: warning: variadic templates are a C++11 extension [-Wc++11-extensions]
+template <class _Up, class... _Args>
+                          ^
+../map_tests/../system/Alloc.hpp:167:34: warning: rvalue references are a C++11 extension [-Wc++11-extensions]
+        construct(_Up* __p, _Args&&... __args)
+                                 ^
+In file included from ../map_tests/operator >=.cpp:2:
+In file included from ../map_tests/__service.ipp:3:
+In file included from ../map_tests/../../../map.hpp:3:
+../map_tests/../../../tree.hpp:871:14: error: call to 'lexicographical_compare' is ambiguous
+    { return lexicographical_compare(__x.begin(), __x.end(), __y.begin(), __y.end()); }
+             ^~~~~~~~~~~~~~~~~~~~~~~
+../map_tests/../../../map.hpp:136:19: note: in instantiation of member function 'ft::operator<' requested here
+{ return __x._M_t < __y._M_t; }
+                  ^
+../map_tests/../../../map.hpp:156:16: note: in instantiation of function template specialization 'ft::operator<<std::string, std::string, std::less<std::string>, std::allocator<ft::pair<const std::string, std::string> > >' requested here
+{ return !(__x < __y); }
+               ^
+../map_tests/operator >=.cpp:19:101: note: in instantiation of function template specialization 'ft::operator>=<std::string, std::string, std::less<std::string>, std::allocator<ft::pair<const std::string, std::string> > >' requested here
+        result2.push_back(mt.mp1 >= mt.mp1); result2.push_back(mt.mp3 >= mt.mp3); result2.push_back(mt.mp5 >= mt.mp9);
+                                                                                                           ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/algorithm:5752:1: note: candidate function [with _InputIterator1 = ft::_Rb_tree_const_iterator<ft::pair<const std::string, std::string> >, _InputIterator2 = ft::_Rb_tree_const_iterator<ft::pair<const std::string, std::string> >]
+lexicographical_compare(_InputIterator1 __first1, _InputIterator1 __last1,
+^
+../map_tests/../../../utility.hpp:125:6: note: candidate function [with InputIterator1 = ft::_Rb_tree_const_iterator<ft::pair<const std::string, std::string> >, InputIterator2 = ft::_Rb_tree_const_iterator<ft::pair<const std::string, std::string> >]
+bool lexicographical_compare (InputIterator1 first1, InputIterator1 last1,
+     ^
+4 warnings and 1 error generated.
+om 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *' to 'const std::error_code' for 1st argument
+operator!=(const error_code& __x, const error_condition& __y) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/system_error:429:1: note: candidate function not viable: no known conversion from 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *' to 'const std::error_condition' for 1st argument
+operator!=(const error_condition& __x, const error_code& __y) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/system_error:434:1: note: candidate function not viable: no known conversion from 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *' to 'const std::error_condition' for 1st argument
+operator!=(const error_condition& __x, const error_condition& __y) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/utility:584:1: note: candidate template ignored: could not match 'pair<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const pair<_T1,_T2>& __x, const pair<_T1,_T2>& __y)
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/iterator:819:1: note: candidate template ignored: could not match 'reverse_iterator<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const reverse_iterator<_Iter1>& __x, const reverse_iterator<_Iter2>& __y)
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/iterator:1041:1: note: candidate template ignored: could not match 'istream_iterator<type-parameter-0-0, type-parameter-0-1, type-parameter-0-2, type-parameter-0-3>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const istream_iterator<_Tp, _CharT, _Traits, _Distance>& __x,
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/iterator:1152:6: note: candidate template ignored: could not match 'istreambuf_iterator<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+bool operator!=(const istreambuf_iterator<_CharT,_Traits>& __a,
+     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/iterator:1275:1: note: candidate template ignored: could not match 'move_iterator<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const move_iterator<_Iter1>& __x, const move_iterator<_Iter2>& __y)
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/iterator:1651:1: note: candidate template ignored: could not match '__wrap_iter<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter2>& __y) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/iterator:1683:1: note: candidate template ignored: could not match '__wrap_iter<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const __wrap_iter<_Iter1>& __x, const __wrap_iter<_Iter1>& __y) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/memory:1010:6: note: candidate template ignored: could not match 'allocator<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+bool operator!=(const allocator<_Tp>&, const allocator<_Up>&) _NOEXCEPT {return false;}
+     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/memory:1948:1: note: candidate template ignored: could not match 'unique_ptr<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const unique_ptr<_T1, _D1>& __x, const unique_ptr<_T2, _D2>& __y) {return !(__x == __y);}
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/memory:1995:1: note: candidate template ignored: could not match 'unique_ptr<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const unique_ptr<_T1, _D1>& __x, nullptr_t) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/memory:2003:1: note: candidate template ignored: could not match 'unique_ptr' against '_Rb_tree'
+operator!=(nullptr_t, const unique_ptr<_T1, _D1>& __x) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/memory:3408:1: note: candidate template ignored: could not match 'shared_ptr<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const shared_ptr<_Tp>& __x, const shared_ptr<_Up>& __y) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/memory:3470:1: note: candidate template ignored: could not match 'shared_ptr<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const shared_ptr<_Tp>& __x, nullptr_t) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/memory:3478:1: note: candidate template ignored: could not match 'shared_ptr' against '_Rb_tree'
+operator!=(nullptr_t, const shared_ptr<_Tp>& __x) _NOEXCEPT
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/__functional_03:1578:1: note: candidate template ignored: could not match 'function<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const function<_Fp>& __f, nullptr_t) {return (bool)__f;}
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/__functional_03:1583:1: note: candidate template ignored: could not match 'function' against '_Rb_tree'
+operator!=(nullptr_t, const function<_Fp>& __f) {return (bool)__f;}
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/array:381:1: note: candidate template ignored: could not match 'array<type-parameter-0-0, _Size>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const array<_Tp, _Size>& __x, const array<_Tp, _Size>& __y)
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/vector:3346:1: note: candidate template ignored: could not match 'vector<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const vector<_Tp, _Allocator>& __x, const vector<_Tp, _Allocator>& __y)
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/map:1614:1: note: candidate template ignored: could not match 'map<type-parameter-0-0, type-parameter-0-1, type-parameter-0-2, type-parameter-0-3>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const map<_Key, _Tp, _Compare, _Allocator>& __x,
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/map:2199:1: note: candidate template ignored: could not match 'multimap<type-parameter-0-0, type-parameter-0-1, type-parameter-0-2, type-parameter-0-3>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const multimap<_Key, _Tp, _Compare, _Allocator>& __x,
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/set:918:1: note: candidate template ignored: could not match 'set<type-parameter-0-0, type-parameter-0-1, type-parameter-0-2>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const set<_Key, _Compare, _Allocator>& __x,
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/set:1445:1: note: candidate template ignored: could not match 'multiset<type-parameter-0-0, type-parameter-0-1, type-parameter-0-2>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const multiset<_Key, _Compare, _Allocator>& __x,
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/deque:2978:1: note: candidate template ignored: could not match 'deque<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const deque<_Tp, _Allocator>& __x, const deque<_Tp, _Allocator>& __y)
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/stack:272:1: note: candidate template ignored: could not match 'stack<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const stack<_Tp, _Container>& __x, const stack<_Tp, _Container>& __y)
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/string_view:682:6: note: candidate template ignored: could not match 'basic_string_view<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+bool operator!=(basic_string_view<_CharT, _Traits> __lhs, basic_string_view<_CharT, _Traits> __rhs) _NOEXCEPT
+     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/string_view:691:6: note: candidate template ignored: could not match 'basic_string_view<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+bool operator!=(basic_string_view<_CharT, _Traits> __lhs,
+     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/string_view:701:6: note: candidate template ignored: could not match 'basic_string_view' against '_Rb_tree'
+bool operator!=(typename common_type<basic_string_view<_CharT, _Traits> >::type __lhs,
+     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/string:575:6: note: candidate template ignored: could not match 'fpos<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+bool operator!=(const fpos<_StateT>& __x, const fpos<_StateT>& __y)
+     ^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/string:4090:1: note: candidate template ignored: could not match 'basic_string<type-parameter-0-0, type-parameter-0-1, type-parameter-0-2>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const basic_string<_CharT,_Traits,_Allocator>& __lhs,
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/string:4099:1: note: candidate template ignored: could not match 'basic_string' against '_Rb_tree'
+operator!=(const _CharT* __lhs,
+^
+/Library/Developer/CommandLineTools/SDKs/MacOSX12.1.sdk/usr/include/c++/v1/string:4108:1: note: candidate template ignored: could not match 'basic_string<type-parameter-0-0, type-parameter-0-1, type-parameter-0-2>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+operator!=(const basic_string<_CharT, _Traits, _Allocator>& __lhs,
+^
+../map_tests/../../../utility.hpp:36:8: note: candidate template ignored: could not match 'pair<type-parameter-0-0, type-parameter-0-1>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+  bool operator!= (const pair<T1,T2>& lhs, const pair<T1,T2>& rhs)
+       ^
+../map_tests/../../../iterator.hpp:123:6: note: candidate template ignored: could not match '_reverse_iterator<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+bool operator!=(const _reverse_iterator<Iter1>& x, const _reverse_iterator<Iter2>& y)
+     ^
+../map_tests/../../../iterator.hpp:232:6: note: candidate template ignored: could not match '__vector_iterator<type-parameter-0-0>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+bool operator!=(const __vector_iterator<_Iter1>& __lhs,
+     ^
+../map_tests/../../../map.hpp:139:13: note: candidate template ignored: could not match 'map<type-parameter-0-0, type-parameter-0-1, type-parameter-0-2, type-parameter-0-3>' against 'ft::_Rb_tree<int, ft::pair<const int, int>, ft::_Select1st<ft::pair<const int, int> >, std::less<int> > *'
+inline bool operator!=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+            ^
+4 warnings and 1 error generated.
