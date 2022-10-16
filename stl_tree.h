@@ -1541,15 +1541,11 @@ _M_insert_(_Base_ptr __x, _Base_ptr __p, const _Val& __v)
 			_GLIBCXX_FORWARD(_Arg, __v), __an);
     }
 
-  template<typename _Key, typename _Val, typename _KeyOfValue,
-	   typename _Compare, typename _Alloc>
-    pair<typename _Rb_tree<_Key, _Val, _KeyOfValue,
-			   _Compare, _Alloc>::_Base_ptr,
-	 typename _Rb_tree<_Key, _Val, _KeyOfValue,
-			   _Compare, _Alloc>::_Base_ptr>
+template<typename _Key, typename _Val, typename _KeyOfValue, typename _Compare, typename _Alloc>
+pair<typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::_Base_ptr, 
+	typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::_Base_ptr>
     _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
-    _M_get_insert_hint_unique_pos(const_iterator __position,
-				  const key_type& __k)
+_M_get_insert_hint_unique_pos(const_iterator __position, const key_type& __k)
     {
       iterator __pos = __position._M_const_cast();
       typedef pair<_Base_ptr, _Base_ptr> _Res;

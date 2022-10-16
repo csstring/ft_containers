@@ -72,6 +72,7 @@ public:
 	bool empty() const { return _M_t.empty(); }
 	size_type size() const { return _M_t.size(); }
 	size_type max_size() const { return _M_t.max_size(); }
+//Element access:
 	mapped_type& operator[](const key_type& k)
 	{
 		iterator __i = lower_bound(__k);
@@ -79,7 +80,24 @@ public:
 	  		__i = insert(__i, value_type(__k, mapped_type()));
 		return (*__i).second;
 	}
+//Modifiers:
+	iterator insert(iterator __position, const value_type& __x)
+	{ return _M_t._M_insert_unique_(__position, __x); }
+	std::pair<iterator, bool> insert(const value_type& __x)
+	{ return _M_t._M_insert_unique(__x); }
+	template<typename _InputIterator>
+	void insert(_InputIterator __first, _InputIterator __last)
+	{ _M_t._M_insert_range_unique(__first, __last); }
 
+	void erase(iterator __position)
+	{ _M_t.erase(__position); }
+	size_type erase(const key_type& __x)
+	{ return _M_t.erase(__x); }
+	void erase(iterator __first, iterator __last)
+	{ _M_t.erase(__first, __last); }
+
+	void swap(map& __x) { _M_t.swap(__x._M_t); }
+	void clear() { _M_t.clear(); }
 }
 
 }
