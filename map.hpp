@@ -80,6 +80,20 @@ public:
 	  		__i = insert(__i, value_type(__k, mapped_type()));
 		return (*__i).second;
 	}
+	mapped_type& at(const key_type& __k)
+    {
+		iterator __i = lower_bound(__k);
+		if (__i == end() || key_comp()(__k, (*__i).first))
+	  		std::__throw_out_of_range("map::at");
+		return (*__i).second;
+    }
+	const mapped_type& at(const key_type& __k) const
+    {
+		const_iterator __i = lower_bound(__k);
+		if (__i == end() || key_comp()(__k, (*__i).first))
+			std::__throw_out_of_range("map::at");
+		return (*__i).second;
+	}
 //Modifiers:
 	iterator insert(iterator __position, const value_type& __x)
 	{ return _M_t._M_insert_unique_(__position, __x); }
@@ -126,37 +140,37 @@ friend bool operator<(const map<_K1, _T1, _C1, _A1>&,
 };
 
 template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator==(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+bool operator==(const map<_Key, _Tp, _Compare, _Alloc>& __x,
 	       				const map<_Key, _Tp, _Compare, _Alloc>& __y)
 { return __x._M_t == __y._M_t; }
 
 template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator<(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+bool operator<(const map<_Key, _Tp, _Compare, _Alloc>& __x,
 	      				const map<_Key, _Tp, _Compare, _Alloc>& __y)
 { return __x._M_t < __y._M_t; }
 
 template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator!=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+bool operator!=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
 	       				const map<_Key, _Tp, _Compare, _Alloc>& __y)
 { return !(__x == __y); }
 
 template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator>(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+bool operator>(const map<_Key, _Tp, _Compare, _Alloc>& __x,
 	      				const map<_Key, _Tp, _Compare, _Alloc>& __y)
 { return __y < __x; }
 
 template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator<=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+bool operator<=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
 	       				const map<_Key, _Tp, _Compare, _Alloc>& __y)
 { return !(__y < __x); }
 
 template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline bool operator>=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
+bool operator>=(const map<_Key, _Tp, _Compare, _Alloc>& __x,
 	       				const map<_Key, _Tp, _Compare, _Alloc>& __y)
 { return !(__x < __y); }
 
 template<typename _Key, typename _Tp, typename _Compare, typename _Alloc>
-inline void swap(map<_Key, _Tp, _Compare, _Alloc>& __x,
+void swap(map<_Key, _Tp, _Compare, _Alloc>& __x,
 					map<_Key, _Tp, _Compare, _Alloc>& __y)
 { __x.swap(__y); }
 

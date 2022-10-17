@@ -1,6 +1,6 @@
 #include "common.hpp"
-#include "map.hpp"
 #include <list>
+#include <utility>
 
 #define T1 int
 #define T2 foo<int>
@@ -15,6 +15,7 @@ void	ft_bound(MAP &mp, const T1 &param)
 {
 	ft_iterator ite = mp.end(), it[2];
 	_pair<ft_iterator, ft_iterator> ft_range;
+	std::cout << "ft_bount : "<< sizeof(ft_range)<< std::endl;
 
 	std::cout << "\t-- [" << iter++ << "] --" << std::endl;
 	std::cout << "with key [" << param << "]:" << std::endl;

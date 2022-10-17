@@ -731,10 +731,9 @@ public:
 	typedef _Rb_tree_iterator<value_type>	 iterator;
 	typedef _Rb_tree_const_iterator<value_type> const_iterator;
 	typedef _reverse_iterator<iterator> reverse_iterator;
-	typedef _reverse_iterator<const iterator> const_reverse_iterator;
+	typedef _reverse_iterator<const_iterator> const_reverse_iterator;
 
 	pair<_Base_ptr, _Base_ptr> _M_get_insert_unique_pos(const key_type& __k);
-//    pair<_Base_ptr, _Base_ptr> _M_get_insert_equal_pos(const key_type& __k);
 	pair<_Base_ptr, _Base_ptr> _M_get_insert_hint_unique_pos(const_iterator __pos, const key_type& __k);
 
 	iterator _M_insert_(_Base_ptr __x, _Base_ptr __y, const value_type& __v);
@@ -779,13 +778,14 @@ public:
 	~_Rb_tree() { _M_erase(_M_begin()); }
     _Rb_tree& operator=(const _Rb_tree& __x)
 	{
-		if (this != __x)
+		if (this != &__x)
 		{
 			this->clear();
 			_M_impl._M_key_compare = __x._M_impl._M_key_compare;
-			if (__x.M_root != 0)
+			if (__x._M_root() != 0)
 				_M_root() = _M_copy(__x);
 		}
+		return *this;
 	}
 	_Compare key_comp() const { return _M_impl._M_key_compare; }
 	iterator begin() { return iterator(this->_M_impl._M_header._M_left); }
@@ -808,7 +808,9 @@ public:
 	size_type size() const
 	{ return _M_impl._M_node_count; }
 	size_type max_size() const
-	{ return get_allocator().max_size();}
+	{std::cout << "size check : "<<sizeof(value_type) << std::endl;
+		return (std::min<size_type>(get_allocator().max_size(), 
+								(std::numeric_limits<size_type>::max() / sizeof(value_type))));}
 	void swap(_Rb_tree& t);
 //insert/erase.
 	pair<iterator, bool> _M_insert_unique(const value_type& __x);
@@ -864,17 +866,31 @@ public:
 
 	friend bool operator==(const _Rb_tree& __x, const _Rb_tree& __y)
     {
-		return __x.size() == __y.size() 
-		&& equal(__x.begin(), __x.end(), __y.begin());
+		return __x.size() == __y.size() && ft::equal(__x.begin(), __x.end(), __y.begin());
 	}
     friend bool operator<(const _Rb_tree& __x, const _Rb_tree& __y)
-    { return lexicographical_compare(__x.begin(), __x.end(), __y.begin(), __y.end()); }
+    { return ft::lexicographical_compare(__x.begin(), __x.end(), __y.begin(), __y.end()); }
 };
 
 template<typename _Key, typename _Val, typename _KeyOfValue, typename _Compare, typename _Alloc>
 void swap(_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __x, 
 			_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>& __y)
 { __x.swap(__y); }
+/*
+template<typename _Key, typename _Val, typename _KeyOfValue, typename _Compare, typename _Alloc>
+_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>&
+_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+operator=(const _Rb_tree& __x)
+{
+	if (this != &__x)
+	{
+		this->clear();
+		_M_impl._M_key_compare = __x._M_impl._M_key_compare;
+		if (__x.M_root != 0)
+			_M_root() = _M_copy(__x);
+	}
+	return *this;
+}*/
 
 template<typename _Key, typename _Val, typename _KeyOfValue, typename _Compare, typename _Alloc>
 typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::iterator
@@ -1153,6 +1169,17 @@ _M_erase_aux(const_iterator __first, const_iterator __last)
 	else
 		while (__first != __last)
 			_M_erase_aux(__first++);
+}
+
+template<typename _Key, typename _Val, typename _KeyOfValue, typename _Compare, typename _Alloc>
+typename _Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::size_type
+_Rb_tree<_Key, _Val, _KeyOfValue, _Compare, _Alloc>::
+erase(const _Key& __x)
+{
+	pair<iterator, iterator> __p = equal_range(__x);
+	const size_type __old_size = size();
+	_M_erase_aux(__p.first, __p.second);
+	return __old_size - size();
 }
 
 template<typename _Key, typename _Val, typename _KeyOfValue, typename _Compare, typename _Alloc>

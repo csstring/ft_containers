@@ -1,11 +1,18 @@
-#include <map>
-#include "map.hpp"
+#include "set.hpp"
+#include <set>
 #include <vector>
 #include <iostream>
 #include <memory>
 #include <iostream>
 #include <iomanip>
 #include <sys/time.h>
+#define	_set	 			ft::set
+#define	_is_integral 		ft::is_integral
+#define	_enable_if 			ft::enable_if
+#define	_pair 				ft::pair
+#define	_make_pair 			ft::make_pair
+#define	_lexicographical	ft::lexicographical_compare
+#define	_equal				ft::equal
 volatile static time_t g_start1;
 volatile static time_t g_start2;
 volatile static time_t g_end1;
@@ -31,19 +38,43 @@ time_t timer() {
 	return msecs_time;
 }
 
-template <class T, class V>
-int run_map_unit_test(std::string test_name, std::vector<int> (func1)(std::map<T, V>), std::vector<int> (func2)(ft::map<T, V>)) {
+int run_bool_unit_test(std::string test_name, bool (func1)()) {
+    int ret = 0;
+    time_t t1;
+    time_t t2;
+    bool res;
+
+	printElement(test_name);
+	res = func1();
+	if (res) {
+	    printElement("OK");
+	    ret = 0;
+	}
+	else {
+	    printElement("FAILED");
+	    ret = 1;
+	}
+	t1 = g_end1 - g_start1, t2 = g_end2 - g_start2;
+	(t1 >= t2) ? printElement(GREEN + std::to_string(t2) + "ms" + RESET) : printElement(REDD + std::to_string(t2) + "ms" + RESET);
+	(t1 > t2) ? printElement(REDD + std::to_string(t1) + "ms" + RESET) : printElement(GREEN + std::to_string(t1) + "ms" + RESET);
+	std::cout << std::endl;
+
+    return ret;
+}
+
+template <class T>
+int run_set_unit_test(std::string test_name, std::vector<int> (func1)(std::set<T>), std::vector<int> (func2)(_set<T>)) {
     int    result;
-	time_t t1;
+    time_t t1;
 	time_t t2;
 	std::vector<int > res1;
 	std::vector<int > res2;
-	std::map<int, int> map;
-	ft::map<int, int> my_map;
+	std::set<int> set;
+	_set<int> my_set;
 
 	printElement(test_name);
-	res1 = func1(map);
-	res2 = func2(my_map);
+	res1 = func1(set);
+	res2 = func2(my_set);
 	if (res1 == res2) {
 	    printElement("OK");
 	    result = 0;
@@ -59,45 +90,40 @@ int run_map_unit_test(std::string test_name, std::vector<int> (func1)(std::map<T
 
 	return !(!result);
 }
-template <class T, class V>
-std::vector<int> copy_constructor_test(std::map<T, V> mp) {
 
+template <class T>
+std::vector<int> copy_constructor_test(std::set<T> st) {
     std::vector<int> v;
 
-    for (int i = 0, j = 10; i < 30 * _ratio; ++i, ++j) {
-        mp.insert(std::make_pair(i, j));
+    for (int i = 0; i < 30 * _ratio; ++i) {
+        st.insert(i);
     }
     g_start1 = timer();
-    std::map<int, int> mp2(mp.begin(), mp.end());
+    std::set<int> st2(st.begin(), st.end());
     g_end1 = timer();
-    std::map<int, int>::iterator it = mp2.begin();
+    std::set<int>::iterator it = st2.begin();
     for (int i = 0; i < 30 * _ratio; ++i, it++) {
-        v.push_back(it->first);
-        v.push_back(it->second);
+        v.push_back(*it);
     }
     return v;
 }
 
-template <class T, class V>
-std::vector<int> copy_constructor_test(ft::map<T, V> mp) {
-
+template <class T>
+std::vector<int> copy_constructor_test(_set<T> st) {
     std::vector<int> v;
 
-    for (int i = 0, j = 10; i < 30 * _ratio; ++i, ++j) {
-        mp.insert(ft::make_pair(i, j));
-    }
+    for (int i = 0; i < 30 * _ratio; ++i)
+        st.insert(i);
     g_start2 = timer();
-    ft::map<int, int> mp2(mp.begin(), mp.end());
+    _set<int> st2(st.begin(), st.end());
     g_end2 = timer();
-    ft::map<int, int>::iterator it = mp2.begin();
+    _set<int>::iterator it = st2.begin();
     for (int i = 0; i < 30 * _ratio; ++i, it++) {
-        v.push_back(it->first);
-        v.push_back(it->second);
+        v.push_back(*it);
     }
     return v;
 }
 
 int main() {
-
-    exit(run_map_unit_test<int, int>("constructor(InputIt)", copy_constructor_test, copy_constructor_test));
+    exit(run_set_unit_test<int>("constructor", copy_constructor_test, copy_constructor_test));
 }
