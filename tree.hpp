@@ -808,8 +808,7 @@ public:
 	size_type size() const
 	{ return _M_impl._M_node_count; }
 	size_type max_size() const
-	{std::cout << "size check : "<<sizeof(value_type) << std::endl;
-		return (std::min<size_type>(get_allocator().max_size(), 
+	{return (std::min<size_type>(get_allocator().max_size(), 
 								(std::numeric_limits<size_type>::max() / sizeof(value_type))));}
 	void swap(_Rb_tree& t);
 //insert/erase.

@@ -11,7 +11,7 @@ class map
 public:
     typedef _Key						key_type;
     typedef _Tp							mapped_type;
-    typedef pair<const _Key, _Tp>	value_type;
+    typedef pair<const _Key, _Tp>		value_type;
     typedef _Compare					key_compare;
 	typedef _Alloc						allocator_type;
 private:
