@@ -71,7 +71,9 @@ public:
 //capacity
 	bool empty() const { return _M_t.empty(); }
 	size_type size() const { return _M_t.size(); }
-	size_type max_size() const { return _M_t.max_size(); }
+	size_type max_size() const {
+//		std::cout << "pair size check t1, t2" << sizeof(value_type) << std::endl;
+		return _M_t.max_size(); }
 //Element access:
 	mapped_type& operator[](const key_type& __k)
 	{

@@ -3,14 +3,12 @@
 #include "iterator.hpp"
 
 namespace ft{
-enum _Rb_tree_color { _S_red = false, _S_black = true };
-
+#pragma pack(push,1)
 struct _Rb_tree_node_base
 {
 	typedef _Rb_tree_node_base* _Base_ptr;
 	typedef const _Rb_tree_node_base* _Const_Base_ptr;
-
-	_Rb_tree_color	_M_color;
+	bool	_M_color;
 	_Base_ptr		_M_parent;
 	_Base_ptr		_M_left;
 	_Base_ptr		_M_right;
@@ -43,7 +41,7 @@ struct _Rb_tree_node_base
 		return x;
 	}
 };
-
+#pragma pack(pop)
 static _Rb_tree_node_base*
   local_Rb_tree_increment(_Rb_tree_node_base* __x) throw ()
   {
@@ -82,7 +80,7 @@ static _Rb_tree_node_base*
   static _Rb_tree_node_base*
   local_Rb_tree_decrement(_Rb_tree_node_base* __x) throw ()
   {
-    if (__x->_M_color == _S_red && __x->_M_parent->_M_parent == __x)
+    if (__x->_M_color == false && __x->_M_parent->_M_parent == __x)
     	__x = __x->_M_right;
     else if (__x->_M_left != 0)
     {
@@ -171,7 +169,7 @@ static _Rb_tree_node_base*
     __x->_M_parent = __p;
     __x->_M_left = 0;
     __x->_M_right = 0;
-    __x->_M_color = _S_red;
+    __x->_M_color = false;
 
     // Insert.
     // Make new node child of parent and maintain root, leftmost and
@@ -198,18 +196,18 @@ static _Rb_tree_node_base*
       }
     // Rebalance.
     while (__x != __root
-	   && __x->_M_parent->_M_color == _S_red)
+	   && __x->_M_parent->_M_color == false)
       {
 	_Rb_tree_node_base* const __xpp = __x->_M_parent->_M_parent;
 
 	if (__x->_M_parent == __xpp->_M_left)
 	  {
 	    _Rb_tree_node_base* const __y = __xpp->_M_right;
-	    if (__y && __y->_M_color == _S_red)
+	    if (__y && __y->_M_color == false)
 	      {
-		__x->_M_parent->_M_color = _S_black;
-		__y->_M_color = _S_black;
-		__xpp->_M_color = _S_red;
+		__x->_M_parent->_M_color = true;
+		__y->_M_color = true;
+		__xpp->_M_color = false;
 		__x = __xpp;
 	      }
 	    else
@@ -219,19 +217,19 @@ static _Rb_tree_node_base*
 		    __x = __x->_M_parent;
 		    local_Rb_tree_rotate_left(__x, __root);
 		  }
-		__x->_M_parent->_M_color = _S_black;
-		__xpp->_M_color = _S_red;
+		__x->_M_parent->_M_color = true;
+		__xpp->_M_color = false;
 		local_Rb_tree_rotate_right(__xpp, __root);
 	      }
 	  }
 	else
 	  {
 	    _Rb_tree_node_base* const __y = __xpp->_M_left;
-	    if (__y && __y->_M_color == _S_red)
+	    if (__y && __y->_M_color == false)
 	      {
-		__x->_M_parent->_M_color = _S_black;
-		__y->_M_color = _S_black;
-		__xpp->_M_color = _S_red;
+		__x->_M_parent->_M_color = true;
+		__y->_M_color = true;
+		__xpp->_M_color = false;
 		__x = __xpp;
 	      }
 	    else
@@ -241,13 +239,13 @@ static _Rb_tree_node_base*
 		    __x = __x->_M_parent;
 		    local_Rb_tree_rotate_right(__x, __root);
 		  }
-		__x->_M_parent->_M_color = _S_black;
-		__xpp->_M_color = _S_red;
+		__x->_M_parent->_M_color = true;
+		__xpp->_M_color = false;
 		local_Rb_tree_rotate_left(__xpp, __root);
 	      }
 	  }
       }
-    __root->_M_color = _S_black;
+    __root->_M_color = true;
   }
 
   _Rb_tree_node_base*
@@ -329,42 +327,42 @@ static _Rb_tree_node_base*
 	      __rightmost = _Rb_tree_node_base::_S_maximum(__x);
 	  }
       }
-    if (__y->_M_color != _S_red)
+    if (__y->_M_color != false)
       {
-	while (__x != __root && (__x == 0 || __x->_M_color == _S_black))
+	while (__x != __root && (__x == 0 || __x->_M_color == true))
 	  if (__x == __x_parent->_M_left)
 	    {
 	      _Rb_tree_node_base* __w = __x_parent->_M_right;
-	      if (__w->_M_color == _S_red)
+	      if (__w->_M_color == false)
 		{
-		  __w->_M_color = _S_black;
-		  __x_parent->_M_color = _S_red;
+		  __w->_M_color = true;
+		  __x_parent->_M_color = false;
 		  local_Rb_tree_rotate_left(__x_parent, __root);
 		  __w = __x_parent->_M_right;
 		}
 	      if ((__w->_M_left == 0 ||
-		   __w->_M_left->_M_color == _S_black) &&
+		   __w->_M_left->_M_color == true) &&
 		  (__w->_M_right == 0 ||
-		   __w->_M_right->_M_color == _S_black))
+		   __w->_M_right->_M_color == true))
 		{
-		  __w->_M_color = _S_red;
+		  __w->_M_color = false;
 		  __x = __x_parent;
 		  __x_parent = __x_parent->_M_parent;
 		}
 	      else
 		{
 		  if (__w->_M_right == 0
-		      || __w->_M_right->_M_color == _S_black)
+		      || __w->_M_right->_M_color == true)
 		    {
-		      __w->_M_left->_M_color = _S_black;
-		      __w->_M_color = _S_red;
+		      __w->_M_left->_M_color = true;
+		      __w->_M_color = false;
 		      local_Rb_tree_rotate_right(__w, __root);
 		      __w = __x_parent->_M_right;
 		    }
 		  __w->_M_color = __x_parent->_M_color;
-		  __x_parent->_M_color = _S_black;
+		  __x_parent->_M_color = true;
 		  if (__w->_M_right)
-		    __w->_M_right->_M_color = _S_black;
+		    __w->_M_right->_M_color = true;
 		  local_Rb_tree_rotate_left(__x_parent, __root);
 		  break;
 		}
@@ -373,40 +371,40 @@ static _Rb_tree_node_base*
 	    {
 	      // same as above, with _M_right <-> _M_left.
 	      _Rb_tree_node_base* __w = __x_parent->_M_left;
-	      if (__w->_M_color == _S_red)
+	      if (__w->_M_color == false)
 		{
-		  __w->_M_color = _S_black;
-		  __x_parent->_M_color = _S_red;
+		  __w->_M_color = true;
+		  __x_parent->_M_color = false;
 		  local_Rb_tree_rotate_right(__x_parent, __root);
 		  __w = __x_parent->_M_left;
 		}
 	      if ((__w->_M_right == 0 ||
-		   __w->_M_right->_M_color == _S_black) &&
+		   __w->_M_right->_M_color == true) &&
 		  (__w->_M_left == 0 ||
-		   __w->_M_left->_M_color == _S_black))
+		   __w->_M_left->_M_color == true))
 		{
-		  __w->_M_color = _S_red;
+		  __w->_M_color = false;
 		  __x = __x_parent;
 		  __x_parent = __x_parent->_M_parent;
 		}
 	      else
 		{
-		  if (__w->_M_left == 0 || __w->_M_left->_M_color == _S_black)
+		  if (__w->_M_left == 0 || __w->_M_left->_M_color == true)
 		    {
-		      __w->_M_right->_M_color = _S_black;
-		      __w->_M_color = _S_red;
+		      __w->_M_right->_M_color = true;
+		      __w->_M_color = false;
 		      local_Rb_tree_rotate_left(__w, __root);
 		      __w = __x_parent->_M_left;
 		    }
 		  __w->_M_color = __x_parent->_M_color;
-		  __x_parent->_M_color = _S_black;
+		  __x_parent->_M_color = true;
 		  if (__w->_M_left)
-		    __w->_M_left->_M_color = _S_black;
+		    __w->_M_left->_M_color = true;
 		  local_Rb_tree_rotate_right(__x_parent, __root);
 		  break;
 		}
 	    }
-	if (__x) __x->_M_color = _S_black;
+	if (__x) __x->_M_color = true;
       }
     return __y;
   }
@@ -420,7 +418,7 @@ static _Rb_tree_node_base*
     unsigned int __sum = 0;
     do
       {
-	if (__node->_M_color == _S_black)
+	if (__node->_M_color == true)
 	  ++__sum;
 	if (__node == __root)
 	  break;
@@ -447,7 +445,7 @@ struct _Rb_tree_header
 
 	_Rb_tree_header()
 	{
-		_M_header._M_color = _S_red;
+		_M_header._M_color = false;
 		_M_reset();
 	}
 	void _M_move_data(_Rb_tree_header& from)
@@ -808,8 +806,16 @@ public:
 	size_type size() const
 	{ return _M_impl._M_node_count; }
 	size_type max_size() const
-	{return (std::min<size_type>(get_allocator().max_size(), 
-								(std::numeric_limits<size_type>::max() / sizeof(value_type))));}
+	{//std::cout << sizeof(value_type) << std::endl;
+		size_type temp_size = sizeof(_Rb_tree_node<value_type>);
+		size_type add_size;
+
+		add_size = temp_size % 8;
+		if (add_size)
+			temp_size += 8 - add_size;
+//	std::cout << sizeof(_Rb_tree_node<value_type>) << std::endl;
+		return std::numeric_limits<size_type>::max() / temp_size;}
+		//return (_M_get_Node_allocator().max_size());}
 	void swap(_Rb_tree& t);
 //insert/erase.
 	pair<iterator, bool> _M_insert_unique(const value_type& __x);
