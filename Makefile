@@ -1,6 +1,6 @@
 CXX= c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -g3 -fsanitize=address
-SRCS = main2.cpp
+SRCS = main.cpp
 OBJS = ${SRCS:.cpp=.o}
 RM = rm -f
 NAME = a.out

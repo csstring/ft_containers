@@ -400,7 +400,6 @@ vector<T, Allocator>::vector(InputIterator first, InputIterator last, const allo
 	}
 }*/
 template <class T, class Allocator>
-inline
 vector<T, Allocator>& vector<T, Allocator>::operator=(const vector& ref)
 {
 	if (this != &ref)

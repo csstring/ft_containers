@@ -3,16 +3,15 @@
 #include "iterator.hpp"
 
 namespace ft{
-#pragma pack(push,1)
+//#pragma pack(push,1)
 struct _Rb_tree_node_base
 {
 	typedef _Rb_tree_node_base* _Base_ptr;
 	typedef const _Rb_tree_node_base* _Const_Base_ptr;
-	bool	_M_color;
 	_Base_ptr		_M_parent;
 	_Base_ptr		_M_left;
 	_Base_ptr		_M_right;
-
+	bool	_M_color;
 	static _Base_ptr _S_minimum(_Base_ptr x)
 	{
 		while (x->_M_left != 0) 
@@ -41,7 +40,7 @@ struct _Rb_tree_node_base
 		return x;
 	}
 };
-#pragma pack(pop)
+//#pragma pack(pop)
 static _Rb_tree_node_base*
   local_Rb_tree_increment(_Rb_tree_node_base* __x) throw ()
   {
@@ -470,7 +469,7 @@ struct _Rb_tree_header
 
 template<typename _Val>
 struct _Rb_tree_node : public _Rb_tree_node_base
-{
+{	
 	typedef _Rb_tree_node<_Val>* _Link_type;
 
 	_Val _M_value_field;
@@ -806,16 +805,7 @@ public:
 	size_type size() const
 	{ return _M_impl._M_node_count; }
 	size_type max_size() const
-	{//std::cout << sizeof(value_type) << std::endl;
-		size_type temp_size = sizeof(_Rb_tree_node<value_type>);
-		size_type add_size;
-
-		add_size = temp_size % 8;
-		if (add_size)
-			temp_size += 8 - add_size;
-//	std::cout << sizeof(_Rb_tree_node<value_type>) << std::endl;
-		return std::numeric_limits<size_type>::max() / temp_size;}
-		//return (_M_get_Node_allocator().max_size());}
+	{ return (_M_get_Node_allocator().max_size());}
 	void swap(_Rb_tree& t);
 //insert/erase.
 	pair<iterator, bool> _M_insert_unique(const value_type& __x);
