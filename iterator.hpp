@@ -4,7 +4,6 @@
 #include "utility.hpp"
 namespace ft
 {
-
 template <class Iter, bool>
 struct iterator_traits_form {};
 
@@ -29,6 +28,7 @@ is_same<typename Iter::iterator_category, std::forward_iterator_tag>::value ||
 is_same<typename Iter::iterator_category, std::bidirectional_iterator_tag>::value ||
 is_same<typename Iter::iterator_category, std::random_access_iterator_tag>::value>
 {};
+
 template <class>
 struct __void_t { typedef void type; };
 template <class _Tp>
@@ -155,66 +155,69 @@ _reverse_iterator<Iter> operator+(typename _reverse_iterator<Iter>::difference_t
 {
     return _reverse_iterator<Iter>(x.base() - n);
 }
-//--------------
+
 template <typename _Iter>
 class __vector_iterator {
- public:
+public:
   typedef _Iter iterator_type;
-  typedef typename ft::iterator_traits<iterator_type>::iterator_category
-      iterator_category;
+  typedef typename ft::iterator_traits<iterator_type>::iterator_category iterator_category;
   typedef typename ft::iterator_traits<iterator_type>::value_type value_type;
-  typedef typename ft::iterator_traits<iterator_type>::difference_type
-      difference_type;
+  typedef typename ft::iterator_traits<iterator_type>::difference_type difference_type;
   typedef typename ft::iterator_traits<iterator_type>::pointer pointer;
   typedef typename ft::iterator_traits<iterator_type>::reference reference;
 
- private:
+private:
   iterator_type __it;
 
- public:
+public:
   __vector_iterator() {}
   template <typename _U>
   __vector_iterator( const __vector_iterator<_U>& __u) : __it(__u.base()) {}
-
   __vector_iterator(iterator_type __x) : __it(__x) {}
-
   const iterator_type& base() const { return __it; }
-
   // operator
   reference operator*() const { return *__it; }
   pointer operator->() const { return __it; }
-  __vector_iterator& operator++() {
+  __vector_iterator& operator++() 
+  {
     ++__it;
     return *this;
   }
-  __vector_iterator operator++(int) {
+  __vector_iterator operator++(int) 
+  {
     __vector_iterator __tmp(*this);
     ++(*this);
     return __tmp;
   }
-  __vector_iterator& operator--() {
+  __vector_iterator& operator--() 
+  {
     --__it;
     return *this;
   }
-  __vector_iterator operator--(int) {
+  __vector_iterator operator--(int) 
+  {
     __vector_iterator __tmp(*this);
     --(*this);
     return __tmp;
   }
-  __vector_iterator& operator+=(difference_type __n) {
+  __vector_iterator& operator+=(difference_type __n) 
+  {
     __it += __n;
     return *this;
   }
-  __vector_iterator operator+(difference_type __n) const {
+  __vector_iterator operator+(difference_type __n) const 
+  {
     __vector_iterator __w(*this);
     __w += __n;
     return __w;
   }
-  __vector_iterator& operator-=(difference_type __n) {
+  __vector_iterator& operator-=(difference_type __n) 
+  {
     __it -= __n;
     return *this;
   }
-  __vector_iterator operator-(difference_type __n) const {
+  __vector_iterator operator-(difference_type __n) const 
+  {
     __vector_iterator __w(*this);
     __w -= __n;
     return __w;

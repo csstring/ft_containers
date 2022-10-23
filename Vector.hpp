@@ -4,8 +4,7 @@
 #include <algorithm>
 #include <limits>
 #include "iterator.hpp"
- //나중에 삭제
-#include <iostream> 
+
 namespace ft
 {
 class vectorBaseCommon
@@ -27,7 +26,6 @@ class vectorBase : protected vectorBaseCommon
 {
 public:
     typedef Allocator                                allocator_type;
-//    typedef std::allocator_traits<allocator_type>    alloc_traits;
     typedef typename Allocator::size_type      	 	size_type;
 protected:
     typedef typename Allocator::value_type	          value_type;
@@ -64,7 +62,6 @@ protected:
 		}
 		__alloc() = c.__alloc();
 	}
-private:
 };
 
 template <class T, class Allocator>
@@ -109,28 +106,18 @@ public:
     typedef vector                                   self;
     typedef T                                      value_type;
     typedef Allocator                               allocator_type;
-//  typedef typename base::alloc_traits          alloc_traits;
     typedef typename base::reference               reference;
     typedef typename base::const_reference         const_reference;
     typedef typename base::size_type               size_type;
     typedef typename base::difference_type         difference_type;
     typedef typename base::pointer                 pointer;
     typedef typename base::const_pointer           const_pointer;
-//	typedef pointer                                  iterator;
-//   typedef const_pointer                            const_iterator;
-	//아래 4개는 다시 만들어야함
-//	typedef typename std::vector<T>::iterator					base_iter;
-//	typedef typename std::vector<T>::const_iterator				base_const_iter;
-/*    typedef  vector_iterator<base_iter>                    iterator;
-    typedef  vector_iterator<base_const_iter>              const_iterator;
-	typedef  _reverse_iterator<base_iter> reverse_iterator;
-    typedef  _reverse_iterator<base_const_iter>   const_reverse_iterator;*/
 
 	typedef __vector_iterator<pointer> iterator;
   	typedef __vector_iterator<const_pointer> const_iterator;
   	typedef _reverse_iterator<iterator> reverse_iterator;
  	typedef _reverse_iterator<const_iterator> const_reverse_iterator;
-	//생성자
+	//생성자,소멸,대입
 	explicit vector(const allocator_type& a = Allocator());
 	explicit vector(size_type n, const value_type& x = value_type(), const allocator_type& a = Allocator());
 	template <class InputIterator>
@@ -141,9 +128,9 @@ public:
 	vector(const vector& copy);
 	~vector(){}
 	vector& operator=(const vector& ref);
-	//Member functions
+//Member functions
 	//iterator
-	const_iterator make_iter(const_pointer p) const; //이놈 왜 있는건지  모르겟음
+	const_iterator make_iter(const_pointer p) const;
 	iterator make_iter(pointer p);
 	iterator               begin();
     const_iterator         begin()	const;
@@ -177,8 +164,6 @@ public:
     const_reference operator[](size_type n) const;
     reference       at(size_type n);
     const_reference at(size_type n) const;
-
-	//_LIBCPP_ASSERT(!empty(), "front() called for empty vector"); assert까지 구현할 필요 있나?
     reference       front() { return *this->__begin_; }
     const_reference front() const { return *this->__begin_; }
     reference       back() { return *(this->__end_ - 1); }
@@ -212,11 +197,6 @@ public:
     template <class InputIterator>
     void insert(const_iterator position, InputIterator first,
 		typename ft::enable_if<!ft::is_integral<InputIterator>::value, InputIterator>::type last);
-	void move_range(pointer __from_s, pointer __from_e, pointer __to);
-	template <class InputIterator, class OutputIterator>
-	OutputIterator move(InputIterator first, InputIterator last, OutputIterator result);
-	template <class InputIterator, class OutputIterator>
-	OutputIterator move_backward(InputIterator first, InputIterator last, OutputIterator result);
 	iterator erase(const_iterator position);
     iterator erase(const_iterator first, const_iterator last);
 	//Allocator:
@@ -234,6 +214,11 @@ private :
 	size_type recommend(size_type new_size) const;
 	void append(size_type n);
     void append(size_type n, const_reference x);
+	void move_range(pointer __from_s, pointer __from_e, pointer __to);
+	template <class InputIterator, class OutputIterator>
+	OutputIterator move(InputIterator first, InputIterator last, OutputIterator result);
+	template <class InputIterator, class OutputIterator>
+	OutputIterator move_backward(InputIterator first, InputIterator last, OutputIterator result);
 	struct ConstructTransaction 
 	{
     explicit ConstructTransaction(vector &ref, size_type n)
@@ -348,6 +333,39 @@ void vector<T, Allocator>::append(size_type n, const_reference x)
 	}
 }
 
+template <class T, class Allocator>
+template <class InputIterator, class OutputIterator>
+OutputIterator vector<T, Allocator>::move_backward
+(InputIterator first, InputIterator last, OutputIterator result)
+{
+	while (first != last)
+		*--result = *--last;
+	return (result);
+}
+
+template <class T, class Allocator>
+void vector<T, Allocator>::move_range(pointer from_s, pointer from_e, pointer to)
+{
+	pointer old_last = this->__end_;
+	difference_type n = old_last - to;
+	pointer i = from_s + n;
+	ConstructTransaction tx(*this, from_e - i);
+	for (pointer pos = tx.pos; i < from_e; ++i, ++pos, tx.pos = pos)
+	{
+		this->__alloc().construct(pos, *i);
+	}
+	move_backward(from_s, from_s + n , old_last);
+}
+
+template <class T, class Allocator>
+template <class InputIterator, class OutputIterator>
+OutputIterator vector<T, Allocator>::move
+(InputIterator first, InputIterator last, OutputIterator result)
+{
+	for (; first != last; ++first, ++result)
+		*result = *first;
+	return (result);
+}
 //Member functions
 template <class T, class Allocator>
 vector<T, Allocator>::vector(const allocator_type& a) : base(a) {}
@@ -363,7 +381,7 @@ vector<T, Allocator>::vector(size_type n, const value_type& x, const allocator_t
 }
 template <class T, class Allocator>
 vector<T, Allocator>::vector(const vector& copy) : base(copy.__alloc())
-{//값 복사 해야하는거 아닌가? 그냥 대입연산자 호출할까..
+{
 	size_type n = copy.size();
 	if (n > 0)
 	{
@@ -380,25 +398,13 @@ vector<T, Allocator>::vector(
 		const allocator_type& a) : base(a)
 {
 	size_type n = static_cast<size_type>(std::distance(first, last));
-//	size_type n = static_cast<size_type>(last - first);
 	if (n > 0)
 	{
 		vallocate(n);
 		construct_at_end(first, last, n);
 	}
 }
-/*
-template <class T, class Allocator>
-template <class InputIterator>
-vector<T, Allocator>::vector(InputIterator first, InputIterator last, const allocator_type& a)
-{
-	size_type n = static_cast<size_type>(std::distance(first, last));
-	if (n > 0)
-	{
-		vallocate(n);
-		construct_at_end(first, last, n);
-	}
-}*/
+
 template <class T, class Allocator>
 vector<T, Allocator>& vector<T, Allocator>::operator=(const vector& ref)
 {
@@ -517,20 +523,6 @@ template <class T, class Allocator>
 void vector<T, Allocator>::push_back(const_reference x)
 {
 	this->append(1, x);
-	/*
-	if (this->__end_ != this->__end_cap())
-	{
-		construct_at_end(1, x);
-	}
-	else
-	{
-		allocator_type& a = this->__alloc();
-		ft::vector<T> temp_vector(recommend(size() + 1), x, a);
-		std::copy(this->__begin_, this->__end_, temp_vector.__begin_);
-		std::swap(this->__begin_, temp_vector.__begin_);
-		std::swap(this->__end_, temp_vector.__end_);
-		std::swap(this->__end_cap(), temp_vector.__end_cap());
-	}*/
 }
 
 template <class T, class Allocator>
@@ -618,7 +610,6 @@ void vector<T, Allocator>::insert(const_iterator position, InputIterator first,
 {
 	size_type pos_dis = position - this->begin();
     difference_type n = std::distance(first, last);
-//	std::cout << size()+n << std::endl;
 	reserve(recommend(size() + n));
 	pointer old_end = this->__end_;
 	pointer p = this->__begin_ + pos_dis;
@@ -640,48 +631,14 @@ void vector<T, Allocator>::insert(const_iterator position, InputIterator first,
 }
 
 template <class T, class Allocator>
-template <class InputIterator, class OutputIterator>
-OutputIterator vector<T, Allocator>::move_backward
-(InputIterator first, InputIterator last, OutputIterator result)
-{
-	while (first != last)
-		*--result = *--last;
-	return (result);
-}
-
-template <class T, class Allocator>
-void vector<T, Allocator>::move_range(pointer from_s, pointer from_e, pointer to)
-{
-	pointer old_last = this->__end_;
-	difference_type n = old_last - to;
-	pointer i = from_s + n;
-	ConstructTransaction tx(*this, from_e - i);
-	for (pointer pos = tx.pos; i < from_e; ++i, ++pos, tx.pos = pos)
-	{
-		this->__alloc().construct(pos, *i);
-	}
-	move_backward(from_s, from_s + n , old_last);
-}
-
-template <class T, class Allocator>
-template <class InputIterator, class OutputIterator>
-OutputIterator vector<T, Allocator>::move
-(InputIterator first, InputIterator last, OutputIterator result)
-{
-	for (; first != last; ++first, ++result)
-		*result = *first;
-	return (result);
-}
-
-template <class T, class Allocator>
 typename vector<T, Allocator>::iterator 
 vector<T, Allocator>::erase(const_iterator position)
 {
 	difference_type ps = position - this->begin();
 	pointer p = this->__begin_ + ps;
 	this->destruct_at_end(this->move(p + 1, this->__end_, p));
-//	iterator r = make_iter(p);
-	return (p);
+	return (make_iter(p));
+//	return (p);
 }
 
 template <class T, class Allocator>
@@ -693,8 +650,8 @@ vector<T, Allocator>::erase(const_iterator first, const_iterator last)
 	{
 		this->destruct_at_end(this->move(p + (last - first), this->__end_, p));
 	}
-//	iterator r = make_iter(p);
-	return (p);
+	return (make_iter(p));
+//	return (p);
 }
 
 template <class T, class Allocator>
@@ -735,7 +692,6 @@ void  vector<T, Allocator>::reserve(size_type n)
 		allocator_type& a = this->__alloc();
 		vector<T, Allocator> temp_vector(a);
 		temp_vector.vallocate(n);
-	//	temp_vector.__end_ = std::copy(this->__begin_, this->__end_, temp_vector.__begin_);
 		temp_vector.construct_at_end(this->__begin_, this->__end_, n);
 		std::swap(this->__begin_, temp_vector.__begin_);
 		std::swap(this->__end_, temp_vector.__end_);
